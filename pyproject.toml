@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reading-evidence-agent"
+version = "0.1.0"
+description = "Local-first, relation-aware evidence retrieval from reading notes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Lee"}]
+keywords = ["retrieval", "evidence", "evaluation", "local-first"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = []
+
+[project.scripts]
+reading-evidence = "reading_evidence.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,34 @@
+[
+  {
+    "question_id": "Q01",
+    "expected_relations": {
+      "failed-experiment-waste": "SUPPORT",
+      "failed-experiment-learning": "COUNTER_EVIDENCE",
+      "experiment-preregistration": "RELATED"
+    },
+    "expected_abstain": false
+  },
+  {
+    "question_id": "Q02",
+    "expected_relations": {
+      "more-notes-help": "SUPPORT",
+      "more-notes-do-not-guarantee": "COUNTER_EVIDENCE",
+      "note-tagging": "RELATED"
+    },
+    "expected_abstain": false
+  },
+  {
+    "question_id": "Q03",
+    "expected_relations": {
+      "reading-speed-benefit": "SUPPORT",
+      "reading-speed-limit": "COUNTER_EVIDENCE",
+      "review-questions": "RELATED"
+    },
+    "expected_abstain": false
+  },
+  {
+    "question_id": "Q04",
+    "expected_relations": {},
+    "expected_abstain": true
+  }
+]

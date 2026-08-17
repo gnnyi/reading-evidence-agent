@@ -5,11 +5,59 @@ from pathlib import Path
 from typing import Any
 
 from reading_evidence.agent import ask
+from reading_evidence.models import Relation
+
+
+def _load_questions(path: Path) -> dict[str, str]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, list):
+        raise ValueError("Questions file must contain a JSON array")
+    questions: dict[str, str] = {}
+    for position, item in enumerate(value, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"Questions item {position} must be an object")
+        question_id = item.get("id")
+        question = item.get("question")
+        if not isinstance(question_id, str) or not question_id.strip():
+            raise ValueError(f"Questions item {position} requires a non-empty string 'id'")
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError(f"Questions item {position} requires a non-empty string 'question'")
+        if question_id in questions:
+            raise ValueError(f"Questions contains duplicate id: {question_id}")
+        questions[question_id] = question
+    return questions
+
+
+def _load_gold(path: Path) -> list[dict[str, Any]]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, list):
+        raise ValueError("Gold file must contain a JSON array")
+    allowed_relations = {relation.value for relation in Relation}
+    for position, item in enumerate(value, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"Gold item {position} must be an object")
+        question_id = item.get("question_id")
+        if not isinstance(question_id, str) or not question_id.strip():
+            raise ValueError(f"Gold item {position} requires a non-empty string 'question_id'")
+        expected = item.get("expected_relations", {})
+        if not isinstance(expected, dict):
+            raise ValueError(f"Gold item {position} 'expected_relations' must be an object")
+        for note_id, relation in expected.items():
+            if not isinstance(note_id, str) or not note_id:
+                raise ValueError(f"Gold item {position} contains an invalid note id")
+            if relation not in allowed_relations:
+                raise ValueError(
+                    f"Gold item {position} relation for '{note_id}' must be one of "
+                    f"{', '.join(sorted(allowed_relations))}"
+                )
+        if "expected_abstain" in item and not isinstance(item["expected_abstain"], bool):
+            raise ValueError(f"Gold item {position} 'expected_abstain' must be true or false")
+    return value
 
 
 def run_eval(index_path: Path, questions_path: Path, dataset_path: Path) -> dict[str, Any]:
-    questions = {item["id"]: item["question"] for item in json.loads(questions_path.read_text())}
-    gold = json.loads(dataset_path.read_text())
+    questions = _load_questions(questions_path)
+    gold = _load_gold(dataset_path)
     case_results: list[dict[str, Any]] = []
     true_positive = false_positive = false_negative = 0
     abstention_correct = 0

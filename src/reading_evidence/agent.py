@@ -37,7 +37,7 @@ def ask(
                 excerpt=excerpt(candidate.note.text),
                 relation=relation,
                 confidence=round(confidence, 3),
-                citation=citation_for(candidate.note),
+                citation=citation_for(candidate.note, question),
                 reason=reason,
             )
         )

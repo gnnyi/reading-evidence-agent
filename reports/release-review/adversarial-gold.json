@@ -1,0 +1,184 @@
+[
+  {
+    "question_id": "C01",
+    "question": "A failed experiment is always wasted time.",
+    "corpus_dir": "c01-mixed",
+    "coverage": ["mixed_stance", "multiple_claims"],
+    "expected_relations": {"mixed": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "The note rejects the absolute belief while preserving a condition under which failure can be wasteful."
+  },
+  {
+    "question_id": "C02",
+    "question": "Persistence is always valuable.",
+    "corpus_dir": "c02-qualified",
+    "coverage": ["qualified_statement", "implicit_counter"],
+    "expected_relations": {"persistence": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "The sunk-cost qualification is a material counterexample to always valuable."
+  },
+  {
+    "question_id": "C03",
+    "question": "Deliberate practice improves recall.",
+    "corpus_dir": "c03-negation-scope",
+    "coverage": ["negation_scope"],
+    "expected_relations": {"practice": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "No modifies typo, not the practice claim."
+  },
+  {
+    "question_id": "C04",
+    "question": "Teams should persist with an idea despite repeated weak demand.",
+    "corpus_dir": "c04-implicit-counter",
+    "coverage": ["implicit_counter", "low_lexical_overlap"],
+    "expected_relations": {"pivot": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "The observed benefit of changing direction challenges continued persistence without explicit negation."
+  },
+  {
+    "question_id": "C05",
+    "question": "A failed experiment is wasted time.",
+    "corpus_dir": "c05-related",
+    "coverage": ["same_topic_unrelated_conclusion"],
+    "expected_relations": {"temperature": "RELATED"},
+    "expected_abstain": true,
+    "rationale": "Reproducibility procedure is relevant context but neither supports nor challenges the value claim."
+  },
+  {
+    "question_id": "C06",
+    "question": "A failed experiment is wasted time.",
+    "corpus_dir": "c06-overlap-trap",
+    "coverage": ["lexical_overlap_trap", "quoted_claim"],
+    "expected_relations": {"glossary": "RELATED"},
+    "expected_abstain": true,
+    "rationale": "Mentioning a proposition as a language example does not endorse it."
+  },
+  {
+    "question_id": "C07",
+    "question": "Failed experiments can create useful knowledge.",
+    "corpus_dir": "c07-low-overlap-support",
+    "coverage": ["low_lexical_overlap"],
+    "expected_relations": {"negative-results": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "Narrowing a search and eliminating dead ends is useful knowledge from negative results."
+  },
+  {
+    "question_id": "C08",
+    "question": "Collecting more reading notes improves decisions.",
+    "corpus_dir": "c08-low-overlap-counter",
+    "coverage": ["implicit_counter", "low_lexical_overlap"],
+    "expected_relations": {"archive": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "Archive size can reinforce bias without resolving the decision, challenging the belief."
+  },
+  {
+    "question_id": "C09",
+    "question": "Reading faster always improves comprehension.",
+    "corpus_dir": "c09-multiple-claims",
+    "coverage": ["multiple_claims", "implicit_counter", "qualified_statement"],
+    "expected_relations": {"speed": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "Dense proofs are a counterexample to the absolute speed claim."
+  },
+  {
+    "question_id": "C10",
+    "question": "A laptop battery should be replaced every year.",
+    "corpus_dir": "c10-absent",
+    "coverage": ["evidence_absent"],
+    "expected_relations": {},
+    "expected_abstain": true,
+    "rationale": "The corpus contains no laptop or battery evidence."
+  },
+  {
+    "question_id": "C11",
+    "question": "Pre-registering expected outcomes reduces hindsight bias.",
+    "corpus_dir": "c11-citation",
+    "coverage": ["citation_integrity", "direct_support"],
+    "expected_relations": {"preregistration": "SUPPORT"},
+    "expected_abstain": false,
+    "expected_citations": {"preregistration": "preregistration.md#L1"},
+    "rationale": "The note directly gives the claimed mechanism."
+  },
+  {
+    "question_id": "C12",
+    "question": "Spacing review sessions improves long-term recall.",
+    "corpus_dir": "c12-negation-elsewhere",
+    "coverage": ["negation_scope"],
+    "expected_relations": {"spacing": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "No modifies budget, not the spacing claim."
+  },
+  {
+    "question_id": "C13",
+    "question": "More notes always improve a decision.",
+    "corpus_dir": "c13-mixed-claims",
+    "coverage": ["mixed_stance", "multiple_claims", "negation_scope"],
+    "expected_relations": {"more-notes": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "The repeated-source exception defeats the absolute claim despite an initial supporting clause."
+  },
+  {
+    "question_id": "C14",
+    "question": "Pre-registration improves decisions.",
+    "corpus_dir": "c14-double-negation",
+    "coverage": ["negation_scope", "qualified_statement"],
+    "expected_relations": {"double-negation": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "Not unlikely is an indirect positive statement, not counter-evidence."
+  },
+  {
+    "question_id": "C15",
+    "question": "Small experiments help reversible decisions.",
+    "corpus_dir": "c15-conditional",
+    "coverage": ["qualified_statement", "support"],
+    "expected_relations": {"reversible": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "The conditional note supplies a mechanism for the claim."
+  },
+  {
+    "question_id": "C16",
+    "question": "Repeating failed tests produces useful learning.",
+    "corpus_dir": "c16-irony",
+    "coverage": ["implicit_counter", "lexical_overlap_trap", "irony"],
+    "expected_relations": {"irony": "COUNTER_EVIDENCE"},
+    "expected_abstain": false,
+    "rationale": "The sentence is sarcastic and challenges the proposition despite matching its words."
+  },
+  {
+    "question_id": "C17",
+    "question": "Diverse notes improve decisions.",
+    "corpus_dir": "c17-quoted-negation",
+    "coverage": ["negation_scope", "quoted_claim"],
+    "expected_relations": {"quoted": "SUPPORT"},
+    "expected_abstain": false,
+    "rationale": "The negated sentence is quoted and rejected; the author's own claim supports the belief."
+  },
+  {
+    "question_id": "C18",
+    "question": "Writing a hypothesis before an experiment improves learning.",
+    "corpus_dir": "c18-three-way",
+    "coverage": ["support", "implicit_counter", "related"],
+    "expected_relations": {"support": "SUPPORT", "counter": "COUNTER_EVIDENCE", "related": "RELATED"},
+    "expected_abstain": false,
+    "rationale": "The three notes intentionally represent directional support, a material anchoring risk, and procedure-only context."
+  },
+  {
+    "question_id": "C19",
+    "question": "Reading fiction improves empathy.",
+    "corpus_dir": "c19-topic-trap",
+    "coverage": ["same_topic_unrelated_conclusion", "lexical_overlap_trap"],
+    "expected_relations": {"fiction": "RELATED"},
+    "expected_abstain": true,
+    "rationale": "Sleep-routine benefit shares subject and predicate but says nothing about empathy."
+  },
+  {
+    "question_id": "C20",
+    "question": "Spaced retrieval improves long-term recall.",
+    "corpus_dir": "c20-citation-line",
+    "coverage": ["citation_integrity", "support"],
+    "expected_relations": {"claim": "SUPPORT"},
+    "expected_abstain": false,
+    "expected_citations": {"claim": "claim.md#L5"},
+    "rationale": "The claim begins on line 5; a precise citation should point to that line rather than the file heading."
+  }
+]

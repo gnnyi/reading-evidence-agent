@@ -6,9 +6,10 @@ import unittest
 from pathlib import Path
 
 from reading_evidence.agent import ask
+from reading_evidence.citation import citation_for
 from reading_evidence.evaluation import run_eval
 from reading_evidence.ingest import ingest_corpus, load_index
-from reading_evidence.models import Relation
+from reading_evidence.models import Note, Relation
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,7 +41,10 @@ class PublicV0Test(unittest.TestCase):
         by_id = {item.note_id: item.relation for item in answer.evidence}
         self.assertEqual(Relation.SUPPORT, by_id["failed-experiment-waste"])
         self.assertEqual(Relation.COUNTER_EVIDENCE, by_id["failed-experiment-learning"])
-        self.assertTrue(all(item.citation.endswith("#L1") for item in answer.evidence))
+        citations = {item.note_id: item.citation for item in answer.evidence}
+        self.assertEqual("failed-experiment-waste.md#L1", citations["failed-experiment-waste"])
+        self.assertEqual("failed-experiment-learning.md#L3", citations["failed-experiment-learning"])
+        self.assertEqual("experiment-preregistration.md#L3", citations["experiment-preregistration"])
         self.assertEqual(3, len(answer.trace["rewritten_queries"]) - 1)
         self.assertGreaterEqual(answer.trace["candidates_retrieved"], answer.trace["candidates_deduplicated"])
 
@@ -61,6 +65,31 @@ class PublicV0Test(unittest.TestCase):
         self.index.write_text(json.dumps(payload))
         with self.assertRaisesRegex(ValueError, "absolute source"):
             load_index(self.index)
+
+    def test_citation_selects_the_claim_line_when_heading_is_generic(self) -> None:
+        note = Note(
+            note_id="claim",
+            title="Review protocol",
+            text=(
+                "# Review protocol\n\n"
+                "This note introduces a review protocol.\n\n"
+                "Spaced retrieval improves long-term recall more reliably than rereading."
+            ),
+            source="claim.md",
+        )
+        self.assertEqual(
+            "claim.md#L5",
+            citation_for(note, "Spaced retrieval improves long-term recall."),
+        )
+
+    def test_malformed_gold_has_a_readable_validation_error(self) -> None:
+        root = Path(self.temporary.name)
+        questions = root / "questions.json"
+        gold = root / "gold.json"
+        questions.write_text(json.dumps([{"id": "X01", "question": "A test question"}]))
+        gold.write_text(json.dumps([{"expected_relations": {}, "expected_abstain": True}]))
+        with self.assertRaisesRegex(ValueError, "Gold item 1.*question_id"):
+            run_eval(self.index, questions, gold)
 
     def test_public_eval_is_reproducible(self) -> None:
         result = run_eval(

@@ -1,0 +1,11 @@
+{
+  "frozen_at": "2026-08-17T10:16:34Z",
+  "source_commit": "b216c949356b96dcce27deb8fb7e92d69e0b0624",
+  "case_count": 20,
+  "corpus_file_count": 22,
+  "gold_path": "reports/release-review/adversarial-gold.json",
+  "gold_sha256": "fa85979f9b9c84ddc365a0a2983fefbce814753d8c592770616dc2fea0c55c6f",
+  "corpus_hash_of_sorted_sha256_lines": "5ab04591d6c48463cbb8e347e68774631b05ba4a094caafc254912e19d11b229",
+  "system_run_before_freeze": false,
+  "gold_edit_after_first_run_allowed": false
+}

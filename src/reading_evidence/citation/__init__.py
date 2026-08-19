@@ -1,3 +1,3 @@
-from .format import citation_for
+from .format import citation_for, validate_citation
 
-__all__ = ["citation_for"]
+__all__ = ["citation_for", "validate_citation"]

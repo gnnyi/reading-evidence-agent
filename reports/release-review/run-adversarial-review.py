@@ -5,8 +5,11 @@ import json
 import tempfile
 from pathlib import Path
 
-from reading_evidence.agent import ask
+from reading_evidence.abstention import abstention_decision
+from reading_evidence.agent import analyze
+from reading_evidence.citation import validate_citation
 from reading_evidence.ingest import ingest_corpus, load_index
+from reading_evidence.models import Relation
 from reading_evidence.query import decompose_query
 from reading_evidence.relation import classify_candidate
 from reading_evidence.retrieval import retrieve
@@ -18,6 +21,11 @@ CORPUS_ROOT = REVIEW / "adversarial"
 GOLD_PATH = REVIEW / "adversarial-gold.json"
 FREEZE_PATH = REVIEW / "adversarial-freeze.json"
 OUTPUT_PATH = REVIEW / "adversarial-results.json"
+EVALUATED_RELATIONS = (
+    Relation.SUPPORT,
+    Relation.COUNTER_EVIDENCE,
+    Relation.RELATED,
+)
 
 
 def sha256(path: Path) -> str:
@@ -32,7 +40,7 @@ def corpus_aggregate_hash() -> str:
     return hashlib.sha256("".join(lines).encode()).hexdigest()
 
 
-def citation_check(item, case: dict, corpus_dir: Path) -> tuple[bool, str]:
+def citation_check(item, case: dict, corpus_dir: Path, note, question: str) -> tuple[bool, str]:
     if "#L" not in item.citation:
         return False, "citation_missing_line"
     source, line_text = item.citation.rsplit("#L", 1)
@@ -43,16 +51,51 @@ def citation_check(item, case: dict, corpus_dir: Path) -> tuple[bool, str]:
         line = int(line_text)
     except ValueError:
         return False, "citation_line_invalid"
-    if line < 1 or line > len(path.read_text().splitlines()):
+    raw_lines = path.read_text(encoding="utf-8").splitlines()
+    if line < 1 or line > len(raw_lines):
         return False, "citation_line_out_of_range"
     expected = case.get("expected_citations", {}).get(item.note_id)
     if expected is not None and item.citation != expected:
         return False, f"expected_{expected}_got_{item.citation}"
-    source_text = " ".join(path.read_text().split())
-    excerpt_prefix = item.excerpt.removesuffix("…")
-    if not source_text.startswith(excerpt_prefix):
-        return False, "excerpt_does_not_match_source"
+    valid, reason = validate_citation(note, question, item.relation, item.citation)
+    if not valid:
+        return False, reason
+    internal_index = line - note.line_start
+    indexed_lines = note.text.splitlines()
+    if internal_index < 0 or internal_index >= len(indexed_lines):
+        return False, "citation_line_not_in_indexed_note"
+    if raw_lines[line - 1].strip() != indexed_lines[internal_index].strip():
+        return False, "citation_line_does_not_match_source"
     return True, "ok"
+
+
+def ratio(numerator: int, denominator: int) -> float | None:
+    return numerator / denominator if denominator else None
+
+
+def rounded(value: float | None) -> float | None:
+    return round(value, 4) if value is not None else None
+
+
+def f1(precision: float | None, recall: float | None) -> float | None:
+    if precision is None or recall is None:
+        return None
+    return 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+
+
+def class_metrics(tp: int, fp: int, fn: int) -> dict:
+    precision = ratio(tp, tp + fp)
+    recall = ratio(tp, tp + fn)
+    return {
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "predicted_count": tp + fp,
+        "gold_count": tp + fn,
+        "precision": rounded(precision),
+        "recall": rounded(recall),
+        "f1": rounded(f1(precision, recall)),
+    }
 
 
 def main() -> int:
@@ -63,12 +106,15 @@ def main() -> int:
         raise RuntimeError("Adversarial corpus changed after freeze")
 
     gold = json.loads(GOLD_PATH.read_text())
+    if not gold:
+        raise RuntimeError("Adversarial Gold must not be empty")
+
     cases = []
     tp = fp = fn = 0
-    predicted_counter = false_counter = 0
-    predicted_support = false_support = 0
-    predicted_related = related_contamination = 0
-    abstention_correct = 0
+    relation_counts = {
+        relation: {"tp": 0, "fp": 0, "fn": 0} for relation in EVALUATED_RELATIONS
+    }
+    abstain_tp = abstain_fp = abstain_tn = abstain_fn = 0
     citation_total = citation_present = citation_valid = 0
 
     for case in gold:
@@ -76,8 +122,9 @@ def main() -> int:
         with tempfile.TemporaryDirectory() as temporary:
             index = Path(temporary) / "index.json"
             ingest_corpus(corpus_dir, index)
-            answer = ask(case["question"], index)
+            answer, classified_evidence = analyze(case["question"], index)
             notes, _ = load_index(index)
+            notes_by_id = {note.note_id: note for note in notes}
             plan = decompose_query(case["question"])
             candidates = retrieve(notes, plan)
             raw = {}
@@ -91,34 +138,48 @@ def main() -> int:
                     "best_lexical_score": candidate.best_lexical_score,
                 }
 
-            predicted = {item.note_id: item.relation.value for item in answer.evidence}
+            predicted = {item.note_id: item.relation.value for item in classified_evidence}
+            presented = {item.note_id: item.relation.value for item in answer.evidence}
             expected = case["expected_relations"]
             predicted_pairs = set(predicted.items())
+            presented_pairs = set(presented.items())
             expected_pairs = set(expected.items())
             tp += len(predicted_pairs & expected_pairs)
             fp += len(predicted_pairs - expected_pairs)
             fn += len(expected_pairs - predicted_pairs)
-            abstain_ok = answer.abstained == case["expected_abstain"]
-            abstention_correct += int(abstain_ok)
 
-            for note_id, relation in predicted.items():
-                if relation == "COUNTER_EVIDENCE":
-                    predicted_counter += 1
-                    false_counter += int(expected.get(note_id) != relation)
-                elif relation == "SUPPORT":
-                    predicted_support += 1
-                    false_support += int(expected.get(note_id) != relation)
-                elif relation == "RELATED":
-                    predicted_related += 1
-                    related_contamination += int(expected.get(note_id) != relation)
+            for relation in EVALUATED_RELATIONS:
+                value = relation.value
+                predicted_ids = {note_id for note_id, label in predicted.items() if label == value}
+                expected_ids = {note_id for note_id, label in expected.items() if label == value}
+                relation_counts[relation]["tp"] += len(predicted_ids & expected_ids)
+                relation_counts[relation]["fp"] += len(predicted_ids - expected_ids)
+                relation_counts[relation]["fn"] += len(expected_ids - predicted_ids)
+
+            predicted_abstain, _ = abstention_decision(classified_evidence)
+            expected_abstain = case["expected_abstain"]
+            if expected_abstain and predicted_abstain:
+                abstain_tp += 1
+            elif expected_abstain and not predicted_abstain:
+                abstain_fn += 1
+            elif not expected_abstain and predicted_abstain:
+                abstain_fp += 1
+            else:
+                abstain_tn += 1
+            abstain_ok = predicted_abstain == expected_abstain
 
             citation_results = {}
-            for item in answer.evidence:
+            for item in classified_evidence:
                 citation_total += 1
                 citation_present += int(bool(item.citation))
-                valid, reason = citation_check(item, case, corpus_dir)
+                note = notes_by_id[item.note_id]
+                valid, reason = citation_check(item, case, corpus_dir, note, case["question"])
                 citation_valid += int(valid)
-                citation_results[item.note_id] = {"citation": item.citation, "valid": valid, "reason": reason}
+                citation_results[item.note_id] = {
+                    "citation": item.citation,
+                    "valid": valid,
+                    "reason": reason,
+                }
 
             failures = []
             for note_id, expected_relation in expected.items():
@@ -142,7 +203,7 @@ def main() -> int:
                         "raw_predicted": raw[note_id]["relation"],
                     })
                 else:
-                    failures.append({"type": "ranking_or_selection_miss", "note_id": note_id, "expected": expected_relation})
+                    failures.append({"type": "classification_output_miss", "note_id": note_id, "expected": expected_relation})
             for note_id, predicted_relation in predicted.items():
                 if note_id not in expected:
                     kind = {
@@ -152,7 +213,7 @@ def main() -> int:
                     }.get(predicted_relation, "unexpected_relation")
                     failures.append({"type": kind, "note_id": note_id, "predicted": predicted_relation})
             if not abstain_ok:
-                failures.append({"type": "abstention_failure", "expected": case["expected_abstain"], "predicted": answer.abstained})
+                failures.append({"type": "abstention_failure", "expected": expected_abstain, "predicted": predicted_abstain})
             for note_id, result in citation_results.items():
                 if not result["valid"]:
                     failures.append({"type": "citation_mismatch", "note_id": note_id, "reason": result["reason"]})
@@ -162,38 +223,107 @@ def main() -> int:
                 "coverage": case["coverage"],
                 "expected_relations": expected,
                 "predicted_relations": predicted,
-                "expected_abstain": case["expected_abstain"],
-                "predicted_abstain": answer.abstained,
+                "presented_relations": presented,
+                "expected_abstain": expected_abstain,
+                "predicted_abstain": predicted_abstain,
                 "relations_exact": predicted_pairs == expected_pairs,
+                "presentation_relations_exact": presented_pairs == expected_pairs,
                 "abstention_correct": abstain_ok,
                 "exact_case": predicted_pairs == expected_pairs and abstain_ok,
+                "presentation_exact_case": presented_pairs == expected_pairs and abstain_ok,
                 "raw_candidates": raw,
                 "trace": answer.trace,
                 "citations": citation_results,
                 "failures": failures,
             })
 
-    precision = tp / (tp + fp) if tp + fp else 1.0
-    recall = tp / (tp + fn) if tp + fn else 1.0
-    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    precision = ratio(tp, tp + fp)
+    recall = ratio(tp, tp + fn)
+    by_class = {
+        relation.value: class_metrics(**relation_counts[relation])
+        for relation in EVALUATED_RELATIONS
+    }
+    raw_class_precision = {
+        relation: ratio(
+            relation_counts[relation]["tp"],
+            relation_counts[relation]["tp"] + relation_counts[relation]["fp"],
+        )
+        for relation in EVALUATED_RELATIONS
+    }
+    raw_class_recall = {
+        relation: ratio(
+            relation_counts[relation]["tp"],
+            relation_counts[relation]["tp"] + relation_counts[relation]["fn"],
+        )
+        for relation in EVALUATED_RELATIONS
+    }
+    raw_class_f1 = {
+        relation: f1(raw_class_precision[relation], raw_class_recall[relation])
+        for relation in EVALUATED_RELATIONS
+    }
+    defined_precision = [value for value in raw_class_precision.values() if value is not None]
+    defined_recall = [value for value in raw_class_recall.values() if value is not None]
+    defined_f1 = [value for value in raw_class_f1.values() if value is not None]
+
+    abstention_precision = ratio(abstain_tp, abstain_tp + abstain_fp)
+    abstention_recall = ratio(abstain_tp, abstain_tp + abstain_fn)
+    abstention_specificity = ratio(abstain_tn, abstain_tn + abstain_fp)
+    balanced = (
+        (abstention_recall + abstention_specificity) / 2
+        if abstention_recall is not None and abstention_specificity is not None
+        else None
+    )
+    support = by_class[Relation.SUPPORT.value]
+    counter = by_class[Relation.COUNTER_EVIDENCE.value]
+    related = by_class[Relation.RELATED.value]
+
     metrics = {
         "case_count": len(cases),
         "exact_cases": sum(case["exact_case"] for case in cases),
-        "relation_precision": round(precision, 4),
-        "relation_recall": round(recall, 4),
-        "relation_f1": round(f1, 4),
-        "false_counter_rate": round(false_counter / predicted_counter, 4) if predicted_counter else 0.0,
-        "false_support_rate": round(false_support / predicted_support, 4) if predicted_support else 0.0,
-        "related_contamination_rate": round(related_contamination / predicted_related, 4) if predicted_related else 0.0,
-        "abstention_accuracy": round(abstention_correct / len(cases), 4),
-        "citation_coverage": round(citation_present / citation_total, 4) if citation_total else 1.0,
-        "citation_integrity": round(citation_valid / citation_total, 4) if citation_total else 1.0,
-        "predicted_counter_count": predicted_counter,
-        "false_counter_count": false_counter,
-        "predicted_support_count": predicted_support,
-        "false_support_count": false_support,
-        "predicted_related_count": predicted_related,
-        "related_contamination_count": related_contamination,
+        "presentation_exact_cases": sum(case["presentation_exact_case"] for case in cases),
+        "relation_precision": rounded(precision),
+        "relation_recall": rounded(recall),
+        "relation_f1": rounded(f1(precision, recall)),
+        "relation_macro_precision": rounded(sum(defined_precision) / len(defined_precision)) if defined_precision else None,
+        "relation_macro_recall": rounded(sum(defined_recall) / len(defined_recall)) if defined_recall else None,
+        "relation_macro_f1": rounded(sum(defined_f1) / len(defined_f1)) if defined_f1 else None,
+        "relation_by_class": by_class,
+        "false_counter_rate": rounded(
+            None
+            if raw_class_precision[Relation.COUNTER_EVIDENCE] is None
+            else 1 - raw_class_precision[Relation.COUNTER_EVIDENCE]
+        ),
+        "counter_precision": counter["precision"],
+        "counter_recall": counter["recall"],
+        "false_support_rate": rounded(
+            None
+            if raw_class_precision[Relation.SUPPORT] is None
+            else 1 - raw_class_precision[Relation.SUPPORT]
+        ),
+        "support_precision": support["precision"],
+        "support_recall": support["recall"],
+        "related_contamination_rate": rounded(
+            None
+            if raw_class_precision[Relation.RELATED] is None
+            else 1 - raw_class_precision[Relation.RELATED]
+        ),
+        "related_precision": related["precision"],
+        "related_recall": related["recall"],
+        "abstention_accuracy": round((abstain_tp + abstain_tn) / len(cases), 4),
+        "abstention_precision": rounded(abstention_precision),
+        "abstention_recall": rounded(abstention_recall),
+        "abstention_specificity": rounded(abstention_specificity),
+        "abstention_balanced_accuracy": rounded(balanced),
+        "expected_abstain_count": abstain_tp + abstain_fn,
+        "predicted_abstain_count": abstain_tp + abstain_fp,
+        "citation_coverage": rounded(ratio(citation_present, citation_total)),
+        "citation_integrity": rounded(ratio(citation_valid, citation_total)),
+        "predicted_counter_count": counter["predicted_count"],
+        "false_counter_count": counter["fp"],
+        "predicted_support_count": support["predicted_count"],
+        "false_support_count": support["fp"],
+        "predicted_related_count": related["predicted_count"],
+        "related_contamination_count": related["fp"],
     }
     output = {
         "freeze": freeze,

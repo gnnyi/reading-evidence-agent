@@ -1,3 +1,3 @@
-from .policy import abstention_decision
+from .policy import DIRECTIONAL_CONFIDENCE_THRESHOLD, abstention_decision
 
-__all__ = ["abstention_decision"]
+__all__ = ["DIRECTIONAL_CONFIDENCE_THRESHOLD", "abstention_decision"]

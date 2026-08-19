@@ -34,6 +34,13 @@ def _content_hash(notes: list[Note]) -> str:
     return digest.hexdigest()
 
 
+def _first_content_line(raw_text: str) -> int:
+    for line_number, line in enumerate(raw_text.splitlines(), start=1):
+        if line.strip():
+            return line_number
+    return 1
+
+
 def ingest_corpus(corpus_path: Path, index_path: Path) -> dict[str, Any]:
     corpus_path = corpus_path.resolve()
     if not corpus_path.is_dir():
@@ -43,8 +50,12 @@ def ingest_corpus(corpus_path: Path, index_path: Path) -> dict[str, Any]:
     for path in sorted(corpus_path.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED_SUFFIXES:
             continue
+        resolved = path.resolve()
+        if not resolved.is_relative_to(corpus_path):
+            raise ValueError(f"Corpus file resolves outside the corpus root: {path}")
         relative = path.relative_to(corpus_path)
-        text = path.read_text(encoding="utf-8").strip()
+        raw_text = path.read_text(encoding="utf-8")
+        text = raw_text.strip()
         if not text:
             continue
         notes.append(
@@ -53,6 +64,7 @@ def ingest_corpus(corpus_path: Path, index_path: Path) -> dict[str, Any]:
                 title=_title(path, text),
                 text=text,
                 source=relative.as_posix(),
+                line_start=_first_content_line(raw_text),
             )
         )
 

@@ -13,20 +13,68 @@
   "metrics": {
     "case_count": 20,
     "exact_cases": 8,
-    "relation_precision": 0.4444,
-    "relation_recall": 0.381,
-    "relation_f1": 0.4103,
+    "presentation_exact_cases": 8,
+    "relation_precision": 0.4737,
+    "relation_recall": 0.4286,
+    "relation_f1": 0.45,
+    "relation_macro_precision": 0.4295,
+    "relation_macro_recall": 0.3843,
+    "relation_macro_f1": 0.3621,
+    "relation_by_class": {
+      "SUPPORT": {
+        "tp": 7,
+        "fp": 6,
+        "fn": 2,
+        "predicted_count": 13,
+        "gold_count": 9,
+        "precision": 0.5385,
+        "recall": 0.7778,
+        "f1": 0.6364
+      },
+      "COUNTER_EVIDENCE": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 7,
+        "predicted_count": 2,
+        "gold_count": 8,
+        "precision": 0.5,
+        "recall": 0.125,
+        "f1": 0.2
+      },
+      "RELATED": {
+        "tp": 1,
+        "fp": 3,
+        "fn": 3,
+        "predicted_count": 4,
+        "gold_count": 4,
+        "precision": 0.25,
+        "recall": 0.25,
+        "f1": 0.25
+      }
+    },
     "false_counter_rate": 0.5,
+    "counter_precision": 0.5,
+    "counter_recall": 0.125,
     "false_support_rate": 0.4615,
-    "related_contamination_rate": 1.0,
+    "support_precision": 0.5385,
+    "support_recall": 0.7778,
+    "related_contamination_rate": 0.75,
+    "related_precision": 0.25,
+    "related_recall": 0.25,
     "abstention_accuracy": 0.65,
+    "abstention_precision": 0.2,
+    "abstention_recall": 0.25,
+    "abstention_specificity": 0.75,
+    "abstention_balanced_accuracy": 0.5,
+    "expected_abstain_count": 4,
+    "predicted_abstain_count": 5,
     "citation_coverage": 1.0,
     "citation_integrity": 1.0,
     "predicted_counter_count": 2,
     "false_counter_count": 1,
     "predicted_support_count": 13,
     "false_support_count": 6,
-    "predicted_related_count": 3,
+    "predicted_related_count": 4,
     "related_contamination_count": 3
   },
   "cases": [
@@ -42,11 +90,16 @@
       "predicted_relations": {
         "mixed": "COUNTER_EVIDENCE"
       },
+      "presented_relations": {
+        "mixed": "COUNTER_EVIDENCE"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "mixed": {
           "relation": "COUNTER_EVIDENCE",
@@ -57,7 +110,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "cc99b472e95b700b8dd0e7fe6fa4e932abf6196986cbdf6d310297acb7e260e2",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "A failed experiment is always wasted time.",
           "core": "fail experiment always waste time",
@@ -66,6 +127,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "mixed",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.808287,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "A failed experiment is always wasted time.",
+                "rank": 1,
+                "score": 1.808287
+              },
+              {
+                "query_index": 1,
+                "query": "fail experiment always waste time reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.808287
+              },
+              {
+                "query_index": 2,
+                "query": "fail experiment always waste time counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.808287
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "mixed",
+            "relation": "COUNTER_EVIDENCE",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with opposite explicit polarity",
+            "citation": "mixed.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "mixed",
@@ -96,11 +195,16 @@
       "predicted_relations": {
         "persistence": "RELATED"
       },
+      "presented_relations": {
+        "persistence": "RELATED"
+      },
       "expected_abstain": false,
       "predicted_abstain": true,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "persistence": {
           "relation": "RELATED",
@@ -111,7 +215,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "6d70b65c93331a2d3746f69a0d457f5f17614eaf8b83dbbbac3fc2000a05a447",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Persistence is always valuable.",
           "core": "persistence always valuable",
@@ -120,6 +232,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "persistence",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 0.523058,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Persistence is always valuable.",
+                "rank": 1,
+                "score": 0.523058
+              },
+              {
+                "query_index": 1,
+                "query": "persistence always valuable reason evidence benefit supports true",
+                "rank": 1,
+                "score": 0.523058
+              },
+              {
+                "query_index": 2,
+                "query": "persistence always valuable counterexample risk limit exception false",
+                "rank": 1,
+                "score": 0.523058
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "persistence",
+            "relation": "RELATED",
+            "confidence": 0.49,
+            "reason": "Shares a topic but not enough of the claim",
+            "citation": "persistence.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "persistence",
@@ -161,11 +311,16 @@
       "predicted_relations": {
         "practice": "SUPPORT"
       },
+      "presented_relations": {
+        "practice": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "practice": {
           "relation": "SUPPORT",
@@ -176,7 +331,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "993d0e12bcd26b77fd656cf1c1f1ba64bfafc5c477927da834acf74d29c97b18",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Deliberate practice improves recall.",
           "core": "deliberate practice improve recall",
@@ -185,6 +348,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "practice",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.534304,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Deliberate practice improves recall.",
+                "rank": 1,
+                "score": 1.534304
+              },
+              {
+                "query_index": 1,
+                "query": "deliberate practice improve recall reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.534304
+              },
+              {
+                "query_index": 2,
+                "query": "deliberate practice improve recall counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.534304
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "practice",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "practice.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "practice",
@@ -215,11 +416,16 @@
       "predicted_relations": {
         "pivot": "SUPPORT"
       },
+      "presented_relations": {
+        "pivot": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": true,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "pivot": {
           "relation": "SUPPORT",
@@ -230,7 +436,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "add64c09b3568a8c5bdb34dc78c2ab14106905e04a599aab5a9294a01ade0df2",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Teams should persist with an idea despite repeated weak demand.",
           "core": "teams persist idea despite repeated weak demand",
@@ -239,6 +453,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "pivot",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.150728,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Teams should persist with an idea despite repeated weak demand.",
+                "rank": 1,
+                "score": 1.150728
+              },
+              {
+                "query_index": 1,
+                "query": "teams persist idea despite repeated weak demand reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.150728
+              },
+              {
+                "query_index": 2,
+                "query": "teams persist idea despite repeated weak demand counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.150728
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "pivot",
+            "relation": "SUPPORT",
+            "confidence": 0.736,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "pivot.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "pivot",
@@ -275,11 +527,16 @@
       "predicted_relations": {
         "temperature": "SUPPORT"
       },
+      "presented_relations": {
+        "temperature": "SUPPORT"
+      },
       "expected_abstain": true,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "temperature": {
           "relation": "SUPPORT",
@@ -290,7 +547,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "847e81bb146134336261309c2f2159bfb0fee33e41eade477c10dc43ffe076f9",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "A failed experiment is wasted time.",
           "core": "fail experiment waste time",
@@ -299,6 +564,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "temperature",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 0.575364,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "A failed experiment is wasted time.",
+                "rank": 1,
+                "score": 0.575364
+              },
+              {
+                "query_index": 1,
+                "query": "fail experiment waste time reason evidence benefit supports true",
+                "rank": 1,
+                "score": 0.575364
+              },
+              {
+                "query_index": 2,
+                "query": "fail experiment waste time counterexample risk limit exception false",
+                "rank": 1,
+                "score": 0.575364
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "temperature",
+            "relation": "SUPPORT",
+            "confidence": 0.7,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "temperature.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "temperature",
@@ -341,11 +644,16 @@
       "predicted_relations": {
         "glossary": "SUPPORT"
       },
+      "presented_relations": {
+        "glossary": "SUPPORT"
+      },
       "expected_abstain": true,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "glossary": {
           "relation": "SUPPORT",
@@ -356,7 +664,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "a7e786265e31abfe24e1fb2448c2bd12d1a82f823b2d5d3fd6c52f8933d370a6",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "A failed experiment is wasted time.",
           "core": "fail experiment waste time",
@@ -365,6 +681,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "glossary",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.397313,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "A failed experiment is wasted time.",
+                "rank": 1,
+                "score": 1.397313
+              },
+              {
+                "query_index": 1,
+                "query": "fail experiment waste time reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.397313
+              },
+              {
+                "query_index": 2,
+                "query": "fail experiment waste time counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.397313
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "glossary",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "glossary.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "glossary",
@@ -404,14 +758,25 @@
         "negative-results": "SUPPORT"
       },
       "predicted_relations": {},
+      "presented_relations": {},
       "expected_abstain": false,
       "predicted_abstain": true,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {},
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "8e3651760a1ea81cfa821b4e91373d4d007e33886f7ba75d515da575cf99d0ae",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Failed experiments can create useful knowledge.",
           "core": "fail experiment create useful knowledge",
@@ -420,6 +785,8 @@
         },
         "candidates_retrieved": 0,
         "candidates_deduplicated": 0,
+        "candidates": [],
+        "candidate_decisions": [],
         "relation_decisions": []
       },
       "citations": {},
@@ -446,14 +813,25 @@
         "archive": "COUNTER_EVIDENCE"
       },
       "predicted_relations": {},
+      "presented_relations": {},
       "expected_abstain": false,
       "predicted_abstain": true,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {},
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "e58745b1d541d1ea6dc41ba2516df3c3e54d844580e3aafb64a9a8d6eb748692",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Collecting more reading notes improves decisions.",
           "core": "collecting more reading note improve decision",
@@ -462,6 +840,8 @@
         },
         "candidates_retrieved": 0,
         "candidates_deduplicated": 0,
+        "candidates": [],
+        "candidate_decisions": [],
         "relation_decisions": []
       },
       "citations": {},
@@ -491,11 +871,16 @@
       "predicted_relations": {
         "speed": "RELATED"
       },
+      "presented_relations": {
+        "speed": "RELATED"
+      },
       "expected_abstain": false,
       "predicted_abstain": true,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "speed": {
           "relation": "RELATED",
@@ -506,7 +891,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "c17d387958de1c9177fcd7a418749bef834dd3e39739a953e8256ae752e970ce",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Reading faster always improves comprehension.",
           "core": "reading faster always improve understand",
@@ -515,6 +908,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "speed",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 0.767152,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Reading faster always improves comprehension.",
+                "rank": 1,
+                "score": 0.767152
+              },
+              {
+                "query_index": 1,
+                "query": "reading faster always improve understand reason evidence benefit supports true",
+                "rank": 1,
+                "score": 0.767152
+              },
+              {
+                "query_index": 2,
+                "query": "reading faster always improve understand counterexample risk limit exception false",
+                "rank": 1,
+                "score": 0.767152
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "speed",
+            "relation": "RELATED",
+            "confidence": 0.65,
+            "reason": "Contextual overlap without a strong directional relation",
+            "citation": "speed.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "speed",
@@ -552,14 +983,25 @@
       ],
       "expected_relations": {},
       "predicted_relations": {},
+      "presented_relations": {},
       "expected_abstain": true,
       "predicted_abstain": true,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {},
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "d0d291fe1879a80102e5fcbe24b6b29bc7bc98b5d42493a1c4ac33a95f79076c",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "A laptop battery should be replaced every year.",
           "core": "laptop battery replaced every year",
@@ -568,6 +1010,8 @@
         },
         "candidates_retrieved": 0,
         "candidates_deduplicated": 0,
+        "candidates": [],
+        "candidate_decisions": [],
         "relation_decisions": []
       },
       "citations": {},
@@ -585,11 +1029,16 @@
       "predicted_relations": {
         "preregistration": "SUPPORT"
       },
+      "presented_relations": {
+        "preregistration": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "preregistration": {
           "relation": "SUPPORT",
@@ -600,7 +1049,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "f7c7bf054d4b6b539e51630cbd03f0ade0b9c62c8c2eb37a77f9fa50410638d6",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Pre-registering expected outcomes reduces hindsight bias.",
           "core": "pre registering expected outcomes reduces hindsight bias",
@@ -609,6 +1066,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "preregistration",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 2.397351,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Pre-registering expected outcomes reduces hindsight bias.",
+                "rank": 1,
+                "score": 2.397351
+              },
+              {
+                "query_index": 1,
+                "query": "pre registering expected outcomes reduces hindsight bias reason evidence benefit supports true",
+                "rank": 1,
+                "score": 2.397351
+              },
+              {
+                "query_index": 2,
+                "query": "pre registering expected outcomes reduces hindsight bias counterexample risk limit exception false",
+                "rank": 1,
+                "score": 2.397351
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "preregistration",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "preregistration.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "preregistration",
@@ -638,11 +1133,16 @@
       "predicted_relations": {
         "spacing": "SUPPORT"
       },
+      "presented_relations": {
+        "spacing": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "spacing": {
           "relation": "SUPPORT",
@@ -653,7 +1153,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "2382e4a1ffb01d41f88ace20936a8d39c62b81dbaf6af8a93860d0ef780e2302",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Spacing review sessions improves long-term recall.",
           "core": "spacing review sessions improve long term recall",
@@ -662,6 +1170,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "spacing",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 2.397351,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Spacing review sessions improves long-term recall.",
+                "rank": 1,
+                "score": 2.397351
+              },
+              {
+                "query_index": 1,
+                "query": "spacing review sessions improve long term recall reason evidence benefit supports true",
+                "rank": 1,
+                "score": 2.397351
+              },
+              {
+                "query_index": 2,
+                "query": "spacing review sessions improve long term recall counterexample risk limit exception false",
+                "rank": 1,
+                "score": 2.397351
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "spacing",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "spacing.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "spacing",
@@ -693,11 +1239,16 @@
       "predicted_relations": {
         "more-notes": "SUPPORT"
       },
+      "presented_relations": {
+        "more-notes": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": true,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "more-notes": {
           "relation": "SUPPORT",
@@ -708,7 +1259,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "a2f26c624f04daf10e5642c52714dc3b8e0b6badcf5e222db96a0f641d7af0e2",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "More notes always improve a decision.",
           "core": "more note always improve decision",
@@ -717,6 +1276,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "more-notes",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.643898,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "More notes always improve a decision.",
+                "rank": 1,
+                "score": 1.643898
+              },
+              {
+                "query_index": 1,
+                "query": "more note always improve decision reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.643898
+              },
+              {
+                "query_index": 2,
+                "query": "more note always improve decision counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.643898
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "more-notes",
+            "relation": "SUPPORT",
+            "confidence": 0.85,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "more-notes.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "more-notes",
@@ -754,11 +1351,16 @@
       "predicted_relations": {
         "double-negation": "COUNTER_EVIDENCE"
       },
+      "presented_relations": {
+        "double-negation": "COUNTER_EVIDENCE"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": true,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "double-negation": {
           "relation": "COUNTER_EVIDENCE",
@@ -769,7 +1371,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "f57c4e1de23eefd6cb7c19b26c3652001b7b52b948d2807e5e63c174bd8adb25",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Pre-registration improves decisions.",
           "core": "pre registration improve decision",
@@ -778,6 +1388,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "double-negation",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.150728,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Pre-registration improves decisions.",
+                "rank": 1,
+                "score": 1.150728
+              },
+              {
+                "query_index": 1,
+                "query": "pre registration improve decision reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.150728
+              },
+              {
+                "query_index": 2,
+                "query": "pre registration improve decision counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.150728
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "double-negation",
+            "relation": "COUNTER_EVIDENCE",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with opposite explicit polarity",
+            "citation": "double-negation.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "double-negation",
@@ -815,22 +1463,35 @@
       "predicted_relations": {
         "reversible": "SUPPORT"
       },
+      "presented_relations": {
+        "reversible": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "reversible": {
           "relation": "SUPPORT",
           "confidence": 0.85,
           "reason": "Overlapping claim with matching explicit polarity",
           "rrf_score": 0.04918032786885246,
-          "best_lexical_score": 1.3425163381083105
+          "best_lexical_score": 1.3425163381083107
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "e009de382b7f48a72f2d1121b0015b3df7bae63ccbc44b1a07a59698e79b7cb0",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Small experiments help reversible decisions.",
           "core": "small experiment help reversible decision",
@@ -839,6 +1500,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "reversible",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.342516,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Small experiments help reversible decisions.",
+                "rank": 1,
+                "score": 1.342516
+              },
+              {
+                "query_index": 1,
+                "query": "small experiment help reversible decision reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.342516
+              },
+              {
+                "query_index": 2,
+                "query": "small experiment help reversible decision counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.342516
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "reversible",
+            "relation": "SUPPORT",
+            "confidence": 0.85,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "reversible.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "reversible",
@@ -870,11 +1569,16 @@
       "predicted_relations": {
         "irony": "SUPPORT"
       },
+      "presented_relations": {
+        "irony": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": true,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "irony": {
           "relation": "SUPPORT",
@@ -885,7 +1589,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "d0ba2cb3970e42621776fda011d5bf6655dff1232df190e341abd5fb72dacb0e",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Repeating failed tests produces useful learning.",
           "core": "repeating fail tests produces useful learn",
@@ -894,6 +1606,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "irony",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.821986,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Repeating failed tests produces useful learning.",
+                "rank": 1,
+                "score": 1.821986
+              },
+              {
+                "query_index": 1,
+                "query": "repeating fail tests produces useful learn reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.821986
+              },
+              {
+                "query_index": 2,
+                "query": "repeating fail tests produces useful learn counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.821986
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "irony",
+            "relation": "SUPPORT",
+            "confidence": 0.867,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "irony.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "irony",
@@ -931,11 +1681,16 @@
       "predicted_relations": {
         "quoted": "SUPPORT"
       },
+      "presented_relations": {
+        "quoted": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "quoted": {
           "relation": "SUPPORT",
@@ -946,7 +1701,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "f8857c4e17316e1d0e5199417aff13e28d7974de588bee7fa322aef4972f8f84",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Diverse notes improve decisions.",
           "core": "diverse note improve decision",
@@ -955,6 +1718,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "quoted",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.936561,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Diverse notes improve decisions.",
+                "rank": 1,
+                "score": 1.936561
+              },
+              {
+                "query_index": 1,
+                "query": "diverse note improve decision reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.936561
+              },
+              {
+                "query_index": 2,
+                "query": "diverse note improve decision counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.936561
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "quoted",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "quoted.md#L1",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "quoted",
@@ -987,13 +1788,20 @@
       },
       "predicted_relations": {
         "support": "SUPPORT",
+        "counter": "RELATED",
+        "related": "RELATED"
+      },
+      "presented_relations": {
+        "support": "SUPPORT",
         "counter": "RELATED"
       },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": true,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "support": {
           "relation": "SUPPORT",
@@ -1007,7 +1815,7 @@
           "confidence": 0.617,
           "reason": "Contextual overlap without a strong directional relation",
           "rrf_score": 0.04838709677419355,
-          "best_lexical_score": 1.5974341909900853
+          "best_lexical_score": 1.597434190990085
         },
         "related": {
           "relation": "RELATED",
@@ -1018,7 +1826,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "81eba9b3461a35119c99a19996d01eadf266975017b4d216e1ac4642e2c9daf5",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Writing a hypothesis before an experiment improves learning.",
           "core": "writing hypothesis before experiment improve learn",
@@ -1027,6 +1843,112 @@
         },
         "candidates_retrieved": 9,
         "candidates_deduplicated": 3,
+        "candidates": [
+          {
+            "note_id": "support",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 4.348941,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Writing a hypothesis before an experiment improves learning.",
+                "rank": 1,
+                "score": 4.348941
+              },
+              {
+                "query_index": 1,
+                "query": "writing hypothesis before experiment improve learn reason evidence benefit supports true",
+                "rank": 1,
+                "score": 4.348941
+              },
+              {
+                "query_index": 2,
+                "query": "writing hypothesis before experiment improve learn counterexample risk limit exception false",
+                "rank": 1,
+                "score": 4.348941
+              }
+            ]
+          },
+          {
+            "note_id": "counter",
+            "rrf_score": 0.048387096774,
+            "best_lexical_score": 1.597434,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Writing a hypothesis before an experiment improves learning.",
+                "rank": 2,
+                "score": 0.608514
+              },
+              {
+                "query_index": 1,
+                "query": "writing hypothesis before experiment improve learn reason evidence benefit supports true",
+                "rank": 2,
+                "score": 1.597434
+              },
+              {
+                "query_index": 2,
+                "query": "writing hypothesis before experiment improve learn counterexample risk limit exception false",
+                "rank": 2,
+                "score": 0.608514
+              }
+            ]
+          },
+          {
+            "note_id": "related",
+            "rrf_score": 0.047619047619,
+            "best_lexical_score": 0.138049,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Writing a hypothesis before an experiment improves learning.",
+                "rank": 3,
+                "score": 0.138049
+              },
+              {
+                "query_index": 1,
+                "query": "writing hypothesis before experiment improve learn reason evidence benefit supports true",
+                "rank": 3,
+                "score": 0.138049
+              },
+              {
+                "query_index": 2,
+                "query": "writing hypothesis before experiment improve learn counterexample risk limit exception false",
+                "rank": 3,
+                "score": 0.138049
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "support",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "support.md#L3",
+            "selected": true,
+            "drop_reason": null
+          },
+          {
+            "note_id": "counter",
+            "relation": "RELATED",
+            "confidence": 0.617,
+            "reason": "Contextual overlap without a strong directional relation",
+            "citation": "counter.md#L3",
+            "selected": true,
+            "drop_reason": null
+          },
+          {
+            "note_id": "related",
+            "relation": "RELATED",
+            "confidence": 0.417,
+            "reason": "Shares a topic but not enough of the claim",
+            "citation": "related.md#L3",
+            "selected": false,
+            "drop_reason": "max_per_relation"
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "support",
@@ -1052,6 +1974,11 @@
           "citation": "counter.md#L3",
           "valid": true,
           "reason": "ok"
+        },
+        "related": {
+          "citation": "related.md#L3",
+          "valid": true,
+          "reason": "ok"
         }
       },
       "failures": [
@@ -1060,11 +1987,6 @@
           "note_id": "counter",
           "expected": "COUNTER_EVIDENCE",
           "raw_predicted": "RELATED"
-        },
-        {
-          "type": "ranking_or_selection_miss",
-          "note_id": "related",
-          "expected": "RELATED"
         }
       ]
     },
@@ -1080,11 +2002,16 @@
       "predicted_relations": {
         "fiction": "SUPPORT"
       },
+      "presented_relations": {
+        "fiction": "SUPPORT"
+      },
       "expected_abstain": true,
       "predicted_abstain": false,
       "relations_exact": false,
+      "presentation_relations_exact": false,
       "abstention_correct": false,
       "exact_case": false,
+      "presentation_exact_case": false,
       "raw_candidates": {
         "fiction": {
           "relation": "SUPPORT",
@@ -1095,7 +2022,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "a268f3d69ac94f5922cb1ba329968f33e1f30193f2318723d228fe1818991f2a",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Reading fiction improves empathy.",
           "core": "reading fiction improve empathy",
@@ -1104,6 +2039,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "fiction",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.054834,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Reading fiction improves empathy.",
+                "rank": 1,
+                "score": 1.054834
+              },
+              {
+                "query_index": 1,
+                "query": "reading fiction improve empathy reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.054834
+              },
+              {
+                "query_index": 2,
+                "query": "reading fiction improve empathy counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.054834
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "fiction",
+            "relation": "SUPPORT",
+            "confidence": 0.825,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "fiction.md#L3",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "fiction",
@@ -1146,11 +2119,16 @@
       "predicted_relations": {
         "claim": "SUPPORT"
       },
+      "presented_relations": {
+        "claim": "SUPPORT"
+      },
       "expected_abstain": false,
       "predicted_abstain": false,
       "relations_exact": true,
+      "presentation_relations_exact": true,
       "abstention_correct": true,
       "exact_case": true,
+      "presentation_exact_case": true,
       "raw_candidates": {
         "claim": {
           "relation": "SUPPORT",
@@ -1161,7 +2139,15 @@
         }
       },
       "trace": {
-        "schema_version": 1,
+        "schema_version": 2,
+        "corpus_sha256": "a4d88f3bb35b34117b40086c266cdb9aee9ac84cfcc54b2eb371f013f0f2b3ae",
+        "config": {
+          "top_k_per_query": 8,
+          "rrf_k": 60,
+          "max_per_relation": 1,
+          "abstention_confidence_threshold": 0.6,
+          "relation_classifier": "lexical-polarity-v0.1"
+        },
         "rewritten_queries": {
           "original": "Spaced retrieval improves long-term recall.",
           "core": "spaced retrieval improve long term recall",
@@ -1170,6 +2156,44 @@
         },
         "candidates_retrieved": 3,
         "candidates_deduplicated": 1,
+        "candidates": [
+          {
+            "note_id": "claim",
+            "rrf_score": 0.049180327869,
+            "best_lexical_score": 1.726092,
+            "matched_queries": [
+              {
+                "query_index": 0,
+                "query": "Spaced retrieval improves long-term recall.",
+                "rank": 1,
+                "score": 1.726092
+              },
+              {
+                "query_index": 1,
+                "query": "spaced retrieval improve long term recall reason evidence benefit supports true",
+                "rank": 1,
+                "score": 1.726092
+              },
+              {
+                "query_index": 2,
+                "query": "spaced retrieval improve long term recall counterexample risk limit exception false",
+                "rank": 1,
+                "score": 1.726092
+              }
+            ]
+          }
+        ],
+        "candidate_decisions": [
+          {
+            "note_id": "claim",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "reason": "Overlapping claim with matching explicit polarity",
+            "citation": "claim.md#L5",
+            "selected": true,
+            "drop_reason": null
+          }
+        ],
         "relation_decisions": [
           {
             "note_id": "claim",

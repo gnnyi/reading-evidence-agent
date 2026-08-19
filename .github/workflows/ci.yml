@@ -1,0 +1,82 @@
+name: deterministic-baseline-ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.14"]
+
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Public four-case Eval
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+          python -m reading_evidence.cli ingest demo/corpus --index "$tmpdir/index.json"
+          python -m reading_evidence.cli eval \
+            --index "$tmpdir/index.json" \
+            --questions demo/questions.json \
+            --dataset demo/gold.json \
+            --output "$tmpdir/public-results.json"
+          python - "$tmpdir/public-results.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          result = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          expected = {
+              "case_count": 4,
+              "relation_f1": 0.75,
+              "relation_macro_f1": 0.7579,
+              "abstention_balanced_accuracy": 1.0,
+              "citation_integrity": 1.0,
+              "exact_case_rate": 0.5,
+              "presentation_exact_case_rate": 1.0,
+          }
+          for key, value in expected.items():
+              actual = result.get(key)
+              if actual != value:
+                  raise SystemExit(f"public Eval regression: {key} expected {value!r}, got {actual!r}")
+          PY
+
+      - name: Frozen adversarial Eval is byte-stable across hash seeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+
+          PYTHONHASHSEED=1 python reports/release-review/run-adversarial-review.py
+          cp reports/release-review/adversarial-results.json "$tmpdir/seed-1.json"
+
+          PYTHONHASHSEED=2 python reports/release-review/run-adversarial-review.py
+          cp reports/release-review/adversarial-results.json "$tmpdir/seed-2.json"
+
+          cmp "$tmpdir/seed-1.json" "$tmpdir/seed-2.json"
+          sha256sum "$tmpdir/seed-1.json" "$tmpdir/seed-2.json"
+          git diff --exit-code -- reports/release-review/adversarial-results.json

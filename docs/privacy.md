@@ -22,6 +22,6 @@ Removing a name is not sufficient anonymization. Real personal questions and rea
 
 ## Local benchmark rule
 
-Private evaluation is opt-in through explicit CLI paths. The CLI does not discover private data, and it writes nothing into the repository unless the operator explicitly chooses a repository path. The default generated index directory is ignored by Git.
+Private evaluation is opt-in through explicit CLI paths. The CLI does not discover private data, and ingestion rejects files whose resolved path escapes the supplied corpus root (including out-of-root file symlinks). It writes nothing into the repository unless the operator explicitly chooses a repository path. The default generated index directory is ignored by Git.
 
 Before any remote publication, review tracked files, scan staged content for credentials and private markers, and inspect the full Git history—not only the working tree.

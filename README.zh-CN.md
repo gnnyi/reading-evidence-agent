@@ -87,7 +87,7 @@ V0.1 是 Reading Evidence Agent 项目的 deterministic baseline。它先建立�
 
 - 使用 `SUPPORT`、`COUNTER_EVIDENCE` 和 `RELATED` 明确标注证据关系；
 - 当定向证据不足时 abstain；
-- 提供相对来源路径的 citation 和决策 trace；
+- 提供相对来源路径、忠实于原始源行号的 citation 和决策 trace；
 - 提供可复现的公开 fixtures 与 Eval 契约。
 
 它还不是完整的 Agent Loop：没有 model-based evidence judge（基于模型的证据判断器），不会自主调用工具，也不会根据当前证据动态决定是否再次检索。
@@ -104,22 +104,26 @@ V0.1 是 Reading Evidence Agent 项目的 deterministic baseline。它先建立�
 
 ## 为什么 Eval 是产品的一部分
 
-4-case Demo fixture 看起来是满分。另一套预先冻结的 20-case adversarial benchmark（对抗性基准）暴露了实际失败模式。
+原先的 4-case 展示层 regression 看起来是满分。把 classification Eval 与每类只展示一条结果的 presentation cap 分离之后，同一套 fixture 的 classification exact 只有 2 / 4，但 CLI presentation 仍是 4 / 4。另一套预先冻结的 20-case adversarial benchmark（对抗性基准）继续暴露更难的失败模式。
 
-| 数据集或指标 | V0.1 结果 |
+| 数据集或指标 | 修正后的 V0.1 结果 |
 |---|---:|
-| 4-case Demo fixture | 4 / 4 exact — 仅用于 regression |
+| 4-case classification exact | 2 / 4 — 仅用于 regression |
+| 4-case presentation exact | 4 / 4 |
 | Frozen adversarial exact cases | 8 / 20 |
-| Relation precision | 0.4444 |
-| Relation recall | 0.3810 |
-| Relation F1 | 0.4103 |
+| Relation precision | 0.4737 |
+| Relation recall | 0.4286 |
+| Relation F1 | 0.4500 |
+| Relation macro F1 | 0.3621 |
 | False counter rate | 0.5000 |
 | Counter recall | 0.1250 |
-| RELATED contamination | 1.0000 |
+| RELATED contamination | 0.7500 |
+| RELATED recall | 0.2500 |
 | Abstention accuracy | 0.6500 |
-| Citation integrity after the V0.1 line-selection fix | 1.0000 |
+| Abstention balanced accuracy | 0.5000 |
+| Citation span integrity | 1.0000 |
 
-这个差距说明两套 Eval 都有保留价值：小型 synthetic fixtures 适合做 regression，却不足以验证检索质量。冻结 benchmark 找出了 4-case fixture 没有覆盖的问题，包括反证召回率低、方向标签误判，以及 `RELATED` 结果污染。
+修正后的 Eval 会在 presentation cap 之前评分所有 retrieved 且非 `IRRELEVANT` 的分类结果，因此原本会被 top-one 展示策略隐藏的 false positives 现在会进入指标；`presentation_exact_case_rate` 仍单独保留，作为 UI regression 信号。冻结 benchmark 仍然显示反证召回率低、方向标签误判、RELATED 污染和较差的 balanced abstention。
 
 这些数字不是质量成功声明。项目把 Eval 输入、原始输出和 failure analysis 当作一等工程产物，让下一步技术决策基于已经观察到的失败，而不是基于一个完美的 Demo 分数：
 
@@ -168,3 +172,7 @@ Private corpus、索引、Gold labels 和输出都必须放在仓库之外。详
 - private real-world benchmark。
 
 Web UI、vector database 基础设施、multi-agent orchestration、用户账号和 cloud SaaS 仍不在当前范围内。
+
+## 参与贡献
+
+请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [relation annotation guide](docs/relation-annotation-guide.md)。当前提交的 20-case adversarial set 只用于 regression；在单独的 blind/holdout Eval 于首次系统运行前完成冻结之前，不应把它用于 semantic-judge model selection。

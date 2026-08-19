@@ -7,6 +7,10 @@ from reading_evidence.models import Note, QueryPlan, RetrievalCandidate
 from reading_evidence.text import tokenize
 
 
+DEFAULT_TOP_K_PER_QUERY = 8
+DEFAULT_RRF_K = 60
+
+
 def _bm25(notes: list[Note], query: str) -> list[tuple[Note, float]]:
     query_tokens = tokenize(query)
     documents = [tokenize(f"{note.title} {note.text}") for note in notes]
@@ -21,7 +25,7 @@ def _bm25(notes: list[Note], query: str) -> list[tuple[Note, float]]:
     for note, tokens in zip(notes, documents):
         frequencies = Counter(tokens)
         score = 0.0
-        for token in set(query_tokens):
+        for token in sorted(set(query_tokens)):
             frequency = frequencies[token]
             if frequency == 0:
                 continue
@@ -38,8 +42,8 @@ def retrieve(
     notes: list[Note],
     plan: QueryPlan,
     *,
-    top_k_per_query: int = 8,
-    rrf_k: int = 60,
+    top_k_per_query: int = DEFAULT_TOP_K_PER_QUERY,
+    rrf_k: int = DEFAULT_RRF_K,
 ) -> list[RetrievalCandidate]:
     fused: dict[str, RetrievalCandidate] = {}
     for query_index, query in enumerate(plan.as_list()):

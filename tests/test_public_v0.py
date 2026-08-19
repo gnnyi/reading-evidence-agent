@@ -98,10 +98,14 @@ class PublicV0Test(unittest.TestCase):
             ROOT / "demo" / "gold.json",
         )
         self.assertEqual(4, result["case_count"])
-        self.assertEqual(1.0, result["relation_f1"])
+        self.assertEqual(0.75, result["relation_f1"])
+        self.assertEqual(0.7579, result["relation_macro_f1"])
         self.assertEqual(1.0, result["abstention_accuracy"])
+        self.assertEqual(1.0, result["abstention_balanced_accuracy"])
         self.assertEqual(1.0, result["citation_coverage"])
-        self.assertEqual(1.0, result["exact_case_rate"])
+        self.assertEqual(1.0, result["citation_integrity"])
+        self.assertEqual(0.5, result["exact_case_rate"])
+        self.assertEqual(1.0, result["presentation_exact_case_rate"])
 
 
 if __name__ == "__main__":

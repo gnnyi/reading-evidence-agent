@@ -19,8 +19,8 @@ question -> query variants -> BM25 retrieval -> RRF deduplication
 - `relation`: assigns `SUPPORT`, `COUNTER_EVIDENCE`, `RELATED`, or `IRRELEVANT` using an inspectable baseline.
 - `abstention`: emits `NO_EVIDENCE / ABSTAIN` when no directional result clears the confidence threshold.
 - `citation`: points results back to an ingested note and line.
-- `trace`: records query rewrites, candidate counts, deduplication, and decisions.
-- `evaluation`: compares answer relations and abstention against an explicit dataset.
+- `trace`: records query rewrites, full candidate identities/ranks, every classification, selection/drop reasons, deterministic configuration, and the indexed corpus hash.
+- `evaluation`: scores uncapped candidate classifications independently from the presentation cap, plus abstention and citation integrity, against an explicit dataset.
 
 No background service is required. The index is a local artifact and is ignored by Git at its default path.
 

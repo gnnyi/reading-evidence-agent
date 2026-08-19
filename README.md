@@ -87,7 +87,7 @@ V0.1 is the deterministic baseline for the broader Reading Evidence Agent projec
 
 - relation-aware retrieval with explicit `SUPPORT`, `COUNTER_EVIDENCE`, and `RELATED` labels;
 - abstention when directional evidence is too weak;
-- source-relative citations and decision traces;
+- source-relative, source-line-faithful citations and decision traces;
 - reproducible public fixtures and evaluation contracts.
 
 It is not a completed Agent Loop. There is no model-based evidence judge, autonomous tool use, or question-dependent decision to retrieve again.
@@ -104,22 +104,26 @@ The pipeline is deliberately small. Its failures can be reproduced, inspected, a
 
 ## Why Eval is part of the product
 
-A four-case demo fixture looked perfect. A separately frozen 20-case adversarial benchmark exposed the actual failure modes.
+The original four-case presentation-level regression looked perfect. After separating classification evaluation from the one-per-relation presentation cap, the same fixture is only 2 / 4 classification-exact while the CLI presentation remains 4 / 4. The separately frozen 20-case adversarial benchmark continues to expose the harder failure modes.
 
-| Dataset or metric | V0.1 result |
+| Dataset or metric | Corrected V0.1 result |
 |---|---:|
-| Four-case demo fixture | 4 / 4 exact — regression only |
+| Four-case classification exact | 2 / 4 — regression only |
+| Four-case presentation exact | 4 / 4 |
 | Frozen adversarial exact cases | 8 / 20 |
-| Relation precision | 0.4444 |
-| Relation recall | 0.3810 |
-| Relation F1 | 0.4103 |
+| Relation precision | 0.4737 |
+| Relation recall | 0.4286 |
+| Relation F1 | 0.4500 |
+| Relation macro F1 | 0.3621 |
 | False counter rate | 0.5000 |
 | Counter recall | 0.1250 |
-| RELATED contamination | 1.0000 |
+| RELATED contamination | 0.7500 |
+| RELATED recall | 0.2500 |
 | Abstention accuracy | 0.6500 |
-| Citation integrity after the V0.1 line-selection fix | 1.0000 |
+| Abstention balanced accuracy | 0.5000 |
+| Citation span integrity | 1.0000 |
 
-That gap shows why both evaluations are kept: tiny synthetic fixtures are useful for regression, but they do not validate retrieval quality. The frozen benchmark found weak counter-evidence recall, false directional labels, and contamination in `RELATED` results that the four-case fixture missed.
+The corrected Eval scores all retrieved non-`IRRELEVANT` classifications before the presentation cap. This exposes false positives that the old top-one display policy could hide; `presentation_exact_case_rate` remains available as a UI regression metric. The frozen benchmark still shows weak counter-evidence recall, false directional labels, RELATED contamination, and poor balanced abstention.
 
 These numbers are not a quality claim. Eval inputs, raw outputs, and failure analysis are first-class repository artifacts so that the next technical decision can be based on observed failures rather than a perfect demo score:
 
@@ -168,3 +172,7 @@ Possible next investigations, not commitments:
 - private real-world benchmark.
 
 Web UI, vector-database infrastructure, multi-agent orchestration, user accounts, and cloud SaaS are intentionally out of scope.
+
+## Contributing
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [relation annotation guide](docs/relation-annotation-guide.md). The committed 20-case adversarial set is regression-only; a separate blind/holdout Eval must be frozen before it can be used for semantic-judge model selection.

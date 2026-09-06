@@ -8,10 +8,30 @@ from pathlib import Path
 from reading_evidence.agent import ask
 from reading_evidence.evaluation import run_eval
 from reading_evidence.ingest import ingest_corpus
+from reading_evidence.judge import DeepSeekJudge, JudgeError, LexicalJudge, RelationJudge
+from reading_evidence.judge_evaluation import run_judge_eval
 from reading_evidence.models import Relation
 
 
 DEFAULT_INDEX = Path(".reading-evidence/index.json")
+JUDGE_CHOICES = ("lexical", "deepseek")
+
+
+def _add_judge_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--judge", choices=JUDGE_CHOICES, default="lexical")
+    parser.add_argument(
+        "--confirm-public-data",
+        action="store_true",
+        help="Confirm that all data sent to a remote judge is public and permitted",
+    )
+
+
+def _build_judge(name: str, *, confirm_public_data: bool) -> RelationJudge:
+    if name == "lexical":
+        return LexicalJudge()
+    if not confirm_public_data:
+        raise ValueError("--confirm-public-data is required when --judge deepseek")
+    return DeepSeekJudge()
 
 
 def _print_answer(answer) -> None:
@@ -52,12 +72,22 @@ def build_parser() -> argparse.ArgumentParser:
     ask_parser.add_argument("question")
     ask_parser.add_argument("--index", type=Path, default=DEFAULT_INDEX)
     ask_parser.add_argument("--json", action="store_true", dest="as_json")
+    _add_judge_arguments(ask_parser)
 
     evaluate = subparsers.add_parser("eval", help="Evaluate against an explicit public/private dataset path")
     evaluate.add_argument("--dataset", type=Path, required=True)
     evaluate.add_argument("--questions", type=Path, required=True)
     evaluate.add_argument("--index", type=Path, default=DEFAULT_INDEX)
     evaluate.add_argument("--output", type=Path)
+    _add_judge_arguments(evaluate)
+
+    judge_evaluate = subparsers.add_parser(
+        "judge-eval",
+        help="Evaluate a relation judge against a candidate-level dataset",
+    )
+    judge_evaluate.add_argument("--dataset", type=Path, required=True)
+    judge_evaluate.add_argument("--output", type=Path)
+    _add_judge_arguments(judge_evaluate)
     return parser
 
 
@@ -68,18 +98,50 @@ def main(argv: list[str] | None = None) -> int:
             result = ingest_corpus(args.corpus, args.index)
             print(json.dumps({"status": "INDEX_READY", "index": str(args.index), **result}, indent=2))
         elif args.command == "ask":
-            answer = ask(args.question, args.index)
+            judge = _build_judge(
+                args.judge,
+                confirm_public_data=args.confirm_public_data,
+            )
+            answer = ask(args.question, args.index, judge=judge)
             if args.as_json:
                 print(json.dumps(answer.to_dict(), indent=2, ensure_ascii=False))
             else:
-                _print_answer(answer)
+                if answer.status == "JUDGE_ERROR":
+                    print(
+                        f"error: judge failed: {answer.abstention_reason or 'unknown error'}",
+                        file=sys.stderr,
+                    )
+                else:
+                    _print_answer(answer)
+            if answer.status == "JUDGE_ERROR":
+                return 3
         elif args.command == "eval":
-            result = run_eval(args.index, args.questions, args.dataset)
+            judge = _build_judge(
+                args.judge,
+                confirm_public_data=args.confirm_public_data,
+            )
+            result = run_eval(args.index, args.questions, args.dataset, judge=judge)
             rendered = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
             if args.output:
                 args.output.parent.mkdir(parents=True, exist_ok=True)
                 args.output.write_text(rendered, encoding="utf-8")
             print(rendered, end="")
+        elif args.command == "judge-eval":
+            judge = _build_judge(
+                args.judge,
+                confirm_public_data=args.confirm_public_data,
+            )
+            result = run_judge_eval(args.dataset, judge)
+            rendered = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
+            if args.output:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                args.output.write_text(rendered, encoding="utf-8")
+            print(rendered, end="")
+            if result["status"] == "JUDGE_ERROR":
+                return 3
+    except JudgeError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 3
     except (OSError, ValueError, json.JSONDecodeError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

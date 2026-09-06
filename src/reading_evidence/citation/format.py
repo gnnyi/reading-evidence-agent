@@ -72,6 +72,33 @@ def citation_for(note: Note, question: str, relation: Relation | None = None) ->
     return f"{note.source}#L{best_line_number}"
 
 
+def validate_evidence_quote(
+    note: Note,
+    evidence_line: int,
+    evidence_quote: str,
+) -> tuple[bool, str]:
+    """Validate an exact, complete single-line quote against an indexed note."""
+    if "\n" in evidence_quote or "\r" in evidence_quote:
+        return False, "evidence_quote_not_single_line"
+    internal_index = evidence_line - note.line_start
+    lines = note.text.splitlines()
+    if internal_index < 0 or internal_index >= len(lines):
+        return False, "evidence_line_out_of_range"
+    if not lines[internal_index].strip():
+        return False, "evidence_line_blank"
+    if evidence_quote != lines[internal_index]:
+        return False, "evidence_quote_not_exact"
+    return True, "ok"
+
+
+def citation_for_evidence(note: Note, evidence_line: int, evidence_quote: str) -> str:
+    """Build a citation only after exact source-line grounding succeeds."""
+    valid, reason = validate_evidence_quote(note, evidence_line, evidence_quote)
+    if not valid:
+        raise ValueError(f"Invalid evidence quote: {reason}")
+    return f"{note.source}#L{evidence_line}"
+
+
 def validate_citation(
     note: Note,
     question: str,

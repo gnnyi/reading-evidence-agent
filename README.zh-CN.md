@@ -8,7 +8,7 @@ Reading Evidence Agent 关注的是另一类检索问题：
 
 > 面对一个当前问题或观点，阅读语料库能否找出支持它的证据、挑战它的反证、仅仅相关的材料，或者明确判断其中没有可用证据？
 
-这个项目的方向是一个主动寻找证据的 Agent。V0.1 是它的 deterministic baseline（确定性基线）：一个小型、local-first（本地优先）系统。它先验证检索流程、关系 schema、abstention（弃答）、citation（引用）、trace（追踪）和 Eval 契约，再考虑引入语义判断器或动态 Agent Loop。
+这是一个可离线复现的证据检索工程项目：BM25 + RRF 检索、可替换的关系判断器、原文行级引用、拒答、决策追踪，以及分开的流程评测与候选级评测。默认判断器使用确定性规则。仓库保留了实验性模型适配器，目前只有模拟测试，没有真实模型运行结论；尚无回答生成或动态 Agent Loop。
 
 ## 不止是相似度检索
 
@@ -57,7 +57,7 @@ Trace:
 
 ## 快速开始
 
-环境要求：Python 3.10+；运行时没有第三方依赖，也不需要外部 API key。
+环境要求：Python 3.10+。基础安装没有第三方运行依赖，不需要外部 API key；以下命令安装完成后均在本地运行。
 
 ```bash
 python3 -m venv .venv
@@ -75,6 +75,15 @@ python3 -m venv .venv
   --dataset demo/gold.json
 ```
 
+运行四分类候选演示（固定命题与原文，不经过检索）：
+
+```bash
+.venv/bin/reading-evidence judge-eval \
+  --dataset demo/judge-cases.json --judge lexical
+```
+
+按[五分钟演示](docs/walkthrough.md)检查一个成功案例、一次拒答和一个已知失败。
+
 运行测试：
 
 ```bash
@@ -83,14 +92,14 @@ python3 -m venv .venv
 
 ## V0.1 建立了什么
 
-V0.1 是 Reading Evidence Agent 项目的 deterministic baseline。它先建立那些可以检查和复现的系统部件，再考虑语义判断器或动态检索循环：
+已验证的路径使用 `LexicalJudge`（规则判断器），包括：
 
 - 使用 `SUPPORT`、`COUNTER_EVIDENCE` 和 `RELATED` 明确标注证据关系；
 - 当定向证据不足时 abstain；
 - 提供相对来源路径、忠实于原始源行号的 citation 和决策 trace；
 - 提供可复现的公开 fixtures 与 Eval 契约。
 
-它还不是完整的 Agent Loop：没有 model-based evidence judge（基于模型的证据判断器），不会自主调用工具，也不会根据当前证据动态决定是否再次检索。
+`RelationJudge` 接口与 `judge-eval` 支持固定候选对照，不必改动检索。可选的 DeepSeek 适配器会检查结构化输出和原文引文；其错误与重试处理目前只用模拟客户端验证。真实 SDK 兼容性、语义效果、抵抗提示注入的能力、耗时和费用均未验证。基础安装和 CI 不启用它，项目尚不能称为完整 RAG 应用或自主 Agent。
 
 ## V0.1 如何工作
 
@@ -129,16 +138,16 @@ V0.1 是 Reading Evidence Agent 项目的 deterministic baseline。它先建立�
 
 - 冻结的 [adversarial Gold](reports/release-review/adversarial-gold.json)；
 - V0.1 [原始结果](reports/release-review/adversarial-results.json)；
-- 独立的[发布审查与失败分析](reports/release-review/public-release-candidate-review.md)；
+- 历史[发布审查与失败分析](reports/release-review/public-release-candidate-review.md)；
 - [Eval 方法](docs/eval-methodology.md)。
 
 ## 已知限制
 
 - 关系分类仍是词法和启发式规则；implicit counter-evidence（隐含反证）、mixed stance（混合立场）、反讽和复杂否定经常判断失败。
-- 分词仅支持 English/ASCII。
+- 分词支持 ASCII 单词和确定性的汉字重叠双字切分；不提供中文词典分词、同义词匹配或中文语义关系判断。
 - 没有动态二次检索或 Agent Loop。
 - 尚未验证大规模语料上的性能。
-- Private 真实场景 Eval 仍在进行，尚未通过公开 gate。
+- 真实用户价值、私人阅读数据上的效果尚未验证。
 
 ## 使用自己的评测数据
 
@@ -162,7 +171,9 @@ Private corpus、索引、Gold labels 和输出都必须放在仓库之外。详
 - deterministic lexical/polarity baseline；
 - 可复现的公开 Demo；
 - 冻结的 adversarial benchmark 与 failure analysis；
-- citation、trace 和 abstention 行为。
+- citation、trace 和 abstention 行为；
+- 可替换的判断器契约和离线四分类候选演示；
+- 仅有模拟响应测试的实验性模型适配器。
 
 后续可能验证的方向，不代表承诺：
 

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "DQ01-1",
+    "question": "Should I treat a failed experiment as wasted time?",
+    "note": {
+      "note_id": "failed-experiment-waste",
+      "title": "When a failed experiment is wasted",
+      "text": "# When a failed experiment is wasted\n\nA failed experiment can waste time when it repeats a known test, records no result, and changes no future decision. Failure alone is not the waste; running an experiment that cannot reduce uncertainty is.",
+      "source": "failed-experiment-waste.md",
+      "line_start": 1
+    },
+    "expected_relation": "SUPPORT",
+    "expected_evidence_line": 3,
+    "expected_evidence_quote": "A failed experiment can waste time when it repeats a known test, records no result, and changes no future decision. Failure alone is not the waste; running an experiment that cannot reduce uncertainty is.",
+    "tags": [
+      "public_demo",
+      "derived_Q01"
+    ]
+  },
+  {
+    "id": "DQ01-2",
+    "question": "Should I treat a failed experiment as wasted time?",
+    "note": {
+      "note_id": "failed-experiment-learning",
+      "title": "Failure can buy information",
+      "text": "# Failure can buy information\n\nA failed experiment is not wasted time when it eliminates a plausible option, exposes a faulty assumption, or improves the next test. The useful output is reduced uncertainty, not a positive result.",
+      "source": "failed-experiment-learning.md",
+      "line_start": 1
+    },
+    "expected_relation": "COUNTER_EVIDENCE",
+    "expected_evidence_line": 3,
+    "expected_evidence_quote": "A failed experiment is not wasted time when it eliminates a plausible option, exposes a faulty assumption, or improves the next test. The useful output is reduced uncertainty, not a positive result.",
+    "tags": [
+      "public_demo",
+      "derived_Q01"
+    ]
+  },
+  {
+    "id": "DQ01-3",
+    "question": "Should I treat a failed experiment as wasted time?",
+    "note": {
+      "note_id": "experiment-preregistration",
+      "title": "Pre-register the learning condition",
+      "text": "# Pre-register the learning condition\n\nBefore an experiment, write down the expected result, the decision it will inform, and what outcome would change your mind. This makes later interpretation less vulnerable to hindsight.",
+      "source": "experiment-preregistration.md",
+      "line_start": 1
+    },
+    "expected_relation": "RELATED",
+    "expected_evidence_line": 3,
+    "expected_evidence_quote": "Before an experiment, write down the expected result, the decision it will inform, and what outcome would change your mind. This makes later interpretation less vulnerable to hindsight.",
+    "tags": [
+      "public_demo",
+      "derived_Q01"
+    ]
+  },
+  {
+    "id": "DQ04-1",
+    "question": "Should an office chair be replaced every two years?",
+    "note": {
+      "note_id": "failed-experiment-waste",
+      "title": "When a failed experiment is wasted",
+      "text": "# When a failed experiment is wasted\n\nA failed experiment can waste time when it repeats a known test, records no result, and changes no future decision. Failure alone is not the waste; running an experiment that cannot reduce uncertainty is.",
+      "source": "failed-experiment-waste.md",
+      "line_start": 1
+    },
+    "expected_relation": "IRRELEVANT",
+    "expected_evidence_line": null,
+    "expected_evidence_quote": null,
+    "tags": [
+      "public_demo",
+      "derived_Q04"
+    ]
+  }
+]

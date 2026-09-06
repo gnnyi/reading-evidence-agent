@@ -43,13 +43,30 @@ PREDICATE_HINTS = {
     "understand", "useful", "waste", "worse",
 }
 
+TOKEN_SEGMENT_PATTERN = re.compile(r"[a-z0-9]+|[\u3400-\u4dbf\u4e00-\u9fff]+")
+
+
+def _is_han(character: str) -> bool:
+    return "\u3400" <= character <= "\u4dbf" or "\u4e00" <= character <= "\u9fff"
+
+
+def _han_tokens(segment: str) -> list[str]:
+    if len(segment) == 1:
+        return [segment]
+    return [segment[index : index + 2] for index in range(len(segment) - 1)]
+
 
 def tokenize(text: str, *, keep_stopwords: bool = False) -> list[str]:
-    raw = re.findall(r"[a-z0-9]+", text.lower().replace("’", "'"))
-    tokens = [CANONICAL.get(token, token) for token in raw]
-    if keep_stopwords:
-        return tokens
-    return [token for token in tokens if token not in STOPWORDS and len(token) > 1]
+    segments = TOKEN_SEGMENT_PATTERN.findall(text.lower().replace("’", "'"))
+    tokens: list[str] = []
+    for segment in segments:
+        if _is_han(segment[0]):
+            tokens.extend(_han_tokens(segment))
+            continue
+        token = CANONICAL.get(segment, segment)
+        if keep_stopwords or (token not in STOPWORDS and len(token) > 1):
+            tokens.append(token)
+    return tokens
 
 
 def topic_tokens(text: str) -> list[str]:

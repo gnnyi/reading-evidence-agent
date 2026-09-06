@@ -8,6 +8,7 @@ from reading_evidence.abstention import abstention_decision
 from reading_evidence.agent import analyze
 from reading_evidence.citation import validate_citation
 from reading_evidence.ingest import load_index
+from reading_evidence.judge import JudgeError, LexicalJudge, RelationJudge
 from reading_evidence.models import Relation
 
 
@@ -107,7 +108,32 @@ def _mean_defined(values: list[float | None]) -> float | None:
     return sum(defined) / len(defined) if defined else None
 
 
-def run_eval(index_path: Path, questions_path: Path, dataset_path: Path) -> dict[str, Any]:
+def _validate_source_line_citation(note, citation: str) -> tuple[bool, str]:
+    if not citation or "#L" not in citation:
+        return False, "citation_missing_line"
+    source, line_text = citation.rsplit("#L", 1)
+    if source != note.source:
+        return False, "citation_source_mismatch"
+    try:
+        line = int(line_text)
+    except ValueError:
+        return False, "citation_line_invalid"
+    line_index = line - note.line_start
+    lines = note.text.splitlines()
+    if line_index < 0 or line_index >= len(lines):
+        return False, "citation_line_out_of_range"
+    if not lines[line_index].strip():
+        return False, "citation_line_is_blank"
+    return True, "ok"
+
+
+def run_eval(
+    index_path: Path,
+    questions_path: Path,
+    dataset_path: Path,
+    *,
+    judge: RelationJudge | None = None,
+) -> dict[str, Any]:
     questions = _load_questions(questions_path)
     gold = _load_gold(dataset_path)
     notes, _ = load_index(index_path)
@@ -126,7 +152,14 @@ def run_eval(index_path: Path, questions_path: Path, dataset_path: Path) -> dict
         if question_id not in questions:
             raise ValueError(f"Gold references unknown question: {question_id}")
         question = questions[question_id]
-        answer, classified_evidence = analyze(question, index_path)
+        answer, classified_evidence = analyze(question, index_path, judge=judge)
+        if getattr(answer, "status", "OK") == "JUDGE_ERROR":
+            raise JudgeError(
+                "judge_error",
+                f"Judge failed for {question_id}: "
+                f"{answer.abstention_reason or 'unknown provider error'}",
+                trace=answer.trace.get("judge") or {},
+            )
 
         predicted = {item.note_id: item.relation.value for item in classified_evidence}
         presented = {item.note_id: item.relation.value for item in answer.evidence}
@@ -146,7 +179,6 @@ def run_eval(index_path: Path, questions_path: Path, dataset_path: Path) -> dict
             relation_counts[relation]["tp"] += len(predicted_ids & expected_ids)
             relation_counts[relation]["fp"] += len(predicted_ids - expected_ids)
             relation_counts[relation]["fn"] += len(expected_ids - predicted_ids)
-
         # Abstention is evaluated from uncapped classifications, independent of presentation policy.
         predicted_abstain, _ = abstention_decision(classified_evidence)
         expected_abstain = case["expected_abstain"]
@@ -168,9 +200,14 @@ def run_eval(index_path: Path, questions_path: Path, dataset_path: Path) -> dict
             if note is None:
                 valid, citation_reason = False, "citation_note_missing_from_index"
             else:
-                valid, citation_reason = validate_citation(
-                    note, question, item.relation, item.citation
-                )
+                if judge is None or isinstance(judge, LexicalJudge):
+                    valid, citation_reason = validate_citation(
+                        note, question, item.relation, item.citation
+                    )
+                else:
+                    valid, citation_reason = _validate_source_line_citation(
+                        note, item.citation
+                    )
             valid_citations += int(valid)
             case_citation_results[item.note_id] = {
                 "citation": item.citation,

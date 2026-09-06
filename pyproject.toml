@@ -18,6 +18,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+deepseek = ["openai>=1.0"]
+
 [project.scripts]
 reading-evidence = "reading_evidence.cli:main"
 

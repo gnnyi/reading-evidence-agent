@@ -31,6 +31,33 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -s tests -v
 
+      - name: Installed CLI and candidate-level demo (no model API)
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+          python -m venv "$tmpdir/venv"
+          "$tmpdir/venv/bin/python" -m pip install .
+          cd "$tmpdir"
+          env -u PYTHONPATH "$tmpdir/venv/bin/reading-evidence" judge-eval \
+            --judge lexical \
+            --dataset "$GITHUB_WORKSPACE/demo/judge-cases.json" \
+            --output "$tmpdir/judge-results.json"
+          python - "$tmpdir/judge-results.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          result = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert result["case_count"] == 4
+          assert result["error_count"] == 0
+          assert result["relation_accuracy"] == 1.0
+          assert result["citation_integrity"] == 1.0
+          assert result["gold_evidence_match_rate"] == 0.6667
+          assert result["aggregate"]["request_count"] == 0
+          PY
+
       - name: Public four-case Eval
         shell: bash
         run: |

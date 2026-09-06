@@ -13,6 +13,8 @@ from reading_evidence.citation import validate_citation
 from reading_evidence.evaluation import run_eval
 from reading_evidence.ingest import ingest_corpus, load_index
 from reading_evidence.models import Relation
+from reading_evidence.query import decompose_query
+from reading_evidence.text import tokenize
 
 
 class CorrectnessContractTest(unittest.TestCase):
@@ -34,6 +36,88 @@ class CorrectnessContractTest(unittest.TestCase):
             questions, gold = self._write_eval_files(root, [], [])
             with self.assertRaisesRegex(ValueError, "at least one case"):
                 run_eval(index, questions, gold)
+
+    def test_tokenize_preserves_english_contract(self) -> None:
+        text = "Does reading faster always improve comprehension?"
+        self.assertEqual(
+            ["reading", "faster", "always", "improve", "understand"],
+            tokenize(text),
+        )
+        self.assertEqual(
+            ["does", "reading", "faster", "always", "improve", "understand"],
+            tokenize(text, keep_stopwords=True),
+        )
+
+    def test_tokenize_han_bigrams_preserves_boundaries_and_singletons(self) -> None:
+        self.assertEqual(
+            ["间隔", "隔复", "复习", "提高", "高记", "记忆", "人"],
+            tokenize("间隔复习，提高记忆；人"),
+        )
+
+    def test_tokenize_mixed_text_preserves_source_order(self) -> None:
+        self.assertEqual(
+            ["ai", "帮助", "助写", "写作", "python"],
+            tokenize("AI帮助写作 Python"),
+        )
+
+    def test_chinese_query_retrieves_literal_evidence_with_citation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            corpus = root / "corpus"
+            corpus.mkdir()
+            (corpus / "claim.md").write_text(
+                "# 复习方法\n\n间隔复习可以提高长期记忆。\n",
+                encoding="utf-8",
+            )
+            index = root / "index.json"
+            ingest_corpus(corpus, index)
+            question = "间隔复习提高长期记忆"
+            self.assertTrue(decompose_query(question).core)
+            answer = ask(question, index)
+            self.assertFalse(answer.abstained)
+            self.assertEqual("claim.md#L3", answer.evidence[0].citation)
+
+    def test_chinese_query_without_literal_overlap_abstains(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            corpus = root / "corpus"
+            corpus.mkdir()
+            (corpus / "claim.md").write_text(
+                "# 复习方法\n\n间隔复习可以提高长期记忆。\n",
+                encoding="utf-8",
+            )
+            index = root / "index.json"
+            ingest_corpus(corpus, index)
+            answer = ask("火星天气预报", index)
+            self.assertTrue(answer.abstained)
+            self.assertEqual([], answer.evidence)
+
+    def test_chinese_retrieval_is_stable_across_python_hash_seeds(self) -> None:
+        script = r'''
+import json
+from reading_evidence.models import Note
+from reading_evidence.query import decompose_query
+from reading_evidence.retrieval import retrieve
+notes = [
+    Note("a", "复习方法", "间隔复习提高长期记忆", "a.md"),
+    Note("b", "写作方法", "写作需要反复修改", "b.md"),
+]
+plan = decompose_query("间隔复习提高记忆")
+print(json.dumps([
+    (item.note.note_id, item.best_lexical_score, item.rrf_score)
+    for item in retrieve(notes, plan)
+], ensure_ascii=False))
+'''
+        root = Path(__file__).resolve().parents[1]
+        outputs = []
+        for seed in ("1", "2"):
+            env = os.environ.copy()
+            env["PYTHONHASHSEED"] = seed
+            env["PYTHONPATH"] = str(root / "src")
+            outputs.append(
+                subprocess.check_output([sys.executable, "-c", script], env=env, text=True)
+            )
+        self.assertEqual(outputs[0], outputs[1])
 
     def test_relation_metrics_pair_false_rate_with_recall_when_class_is_suppressed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -2,7 +2,9 @@
 
 ## Deterministic baseline first
 
-V0 uses only the Python standard library at runtime. Once installed, it runs without model downloads, credentials, network calls, or hidden prompts. Packaging still depends on the declared build backend being available when `pip install` runs. Every public Eval run is deterministic.
+The base installation uses only the Python standard library at runtime. With the default lexical judge, it runs without model downloads, credentials, network calls, or hidden prompts. Packaging still depends on the declared build backend being available when `pip install` runs. Pipeline outputs are deterministic; candidate-evaluation timing fields naturally vary.
+
+The existing model adapter is an optional extra, not part of the verified offline path. It is never selected implicitly. Remote mode requires explicit public-data confirmation. Its presence and simulated tests do not establish real provider compatibility or semantic improvement; no remote command is required for the public walkthrough.
 
 Tradeoff: overlap and polarity heuristics cannot perform general entailment. Negation, irony, qualifications, and multi-sentence arguments can be misclassified. The trace exposes these decisions so later models can be evaluated against the baseline.
 

@@ -8,7 +8,7 @@ Reading Evidence Agent explores a different retrieval question:
 
 > Given a current question or belief, can a reading corpus surface evidence that supports it, challenges it, is merely related, or contains no useful evidence at all?
 
-The project direction is an evidence-seeking Agent. V0.1 is its deterministic baseline: a small, local-first system for testing the retrieval flow, relation schema, abstention behavior, citations, traces, and Eval contract before adding a semantic judge or dynamic Agent Loop.
+An offline, reproducible evidence-retrieval engineering project: BM25 + RRF retrieval, a replaceable relation judge, source-line citations, abstention, decision traces, and separate pipeline/candidate evaluations. The default judge is deterministic. An optional model adapter exists as experimental code, with simulated tests only; no live model result is claimed. There is no answer generation or dynamic Agent Loop.
 
 ## Beyond similarity search
 
@@ -57,7 +57,7 @@ The full output also includes source excerpts and a deduplicated source list.
 
 ## Quick start
 
-Requirements: Python 3.10+; no runtime dependencies or external API keys.
+Requirements: Python 3.10+. The base installation has no third-party runtime dependencies or external API keys. All commands below run locally after installation.
 
 ```bash
 python3 -m venv .venv
@@ -75,6 +75,15 @@ Run the public evaluation:
   --dataset demo/gold.json
 ```
 
+Run the four-class candidate demo (fixed question/note pairs; retrieval is bypassed):
+
+```bash
+.venv/bin/reading-evidence judge-eval \
+  --dataset demo/judge-cases.json --judge lexical
+```
+
+Follow the [five-minute walkthrough](docs/walkthrough.md) to inspect a success, abstention, and a known failure.
+
 Run tests:
 
 ```bash
@@ -83,14 +92,14 @@ Run tests:
 
 ## What V0.1 establishes
 
-V0.1 is the deterministic baseline for the broader Reading Evidence Agent project. It establishes the inspectable parts of the system before a semantic judge or dynamic retrieval loop is introduced:
+The verified path uses `LexicalJudge`. It establishes:
 
 - relation-aware retrieval with explicit `SUPPORT`, `COUNTER_EVIDENCE`, and `RELATED` labels;
 - abstention when directional evidence is too weak;
 - source-relative, source-line-faithful citations and decision traces;
 - reproducible public fixtures and evaluation contracts.
 
-It is not a completed Agent Loop. There is no model-based evidence judge, autonomous tool use, or question-dependent decision to retrieve again.
+`RelationJudge` and `judge-eval` allow fixed-candidate comparisons without changing retrieval. The optional DeepSeek adapter validates structured output and exact source quotes; its error/retry handling is covered by simulated clients. Live SDK compatibility, semantic quality, prompt-injection resistance, latency, and costs remain unverified. The base install and CI do not activate it. This is not a completed RAG application or an autonomous agent.
 
 ## How V0.1 works
 
@@ -129,16 +138,16 @@ These numbers are not a quality claim. Eval inputs, raw outputs, and failure ana
 
 - frozen [adversarial Gold](reports/release-review/adversarial-gold.json);
 - V0.1 [raw results](reports/release-review/adversarial-results.json);
-- independent [release review and failure analysis](reports/release-review/public-release-candidate-review.md);
+- historical [release review and failure analysis](reports/release-review/public-release-candidate-review.md);
 - [evaluation methodology](docs/eval-methodology.md).
 
 ## Known limitations
 
 - Relation classification is lexical and heuristic. Implicit counter-evidence, mixed stances, irony, and complex negation often fail.
-- Tokenization is English/ASCII-only.
+- Tokenization supports ASCII words and deterministic overlapping Han bigrams. It does not provide Chinese word segmentation, synonym matching, or Chinese semantic relation judgment.
 - There is no dynamic second retrieval or Agent Loop.
 - Performance on a large corpus has not been established.
-- Private real-world evaluation is still in progress and has not passed a public gate.
+- Real-user value and performance on private reading data have not been validated.
 
 ## Bring your own evaluation data
 
@@ -162,7 +171,9 @@ Current V0.1:
 - deterministic lexical/polarity baseline;
 - reproducible public demo;
 - frozen adversarial benchmark and failure analysis;
-- citation, trace, and abstention behavior.
+- citation, trace, and abstention behavior;
+- a replaceable judge contract and a four-class offline candidate demo;
+- an experimental model adapter tested with simulated responses only.
 
 Possible next investigations, not commitments:
 

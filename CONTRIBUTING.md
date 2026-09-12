@@ -6,7 +6,7 @@ Reading Evidence Agent is currently a small deterministic baseline. Contribution
 
 No code is required to [share a first-use result](docs/feedback.md), report a confusing instruction, or submit a permitted minimal failure example. English and Chinese are welcome.
 
-For code, start with the [three scoped starter specifications](docs/starter-issues/README.md). Open an issue naming the spec and check existing discussions before starting, so work is not duplicated. These are proposals, not assigned tasks or evidence of outside demand. Larger changes should first explain the observed problem and smallest useful validation.
+For code, start with the [three scoped starter specifications](docs/starter-issues/README.md). Use the linked starter issue and check its discussion before starting, so work is not duplicated. These are proposals, not assigned tasks or evidence of outside demand. Larger changes should first explain the observed problem and smallest useful validation.
 
 ## Start from a clean checkout
 
@@ -87,4 +87,4 @@ A focused contribution should include:
 
 For relation-label changes, include the annotated evidence span and explain the `SUPPORT` / `COUNTER_EVIDENCE` / `RELATED` distinction rather than reporting only an aggregate score.
 
-Three intentionally unclaimed starter tasks are tracked under [`docs/starter-issues/`](docs/starter-issues/). They are repository task specifications, not evidence that an external user has opened an issue or adopted the project.
+Three maintainer-proposed starter tasks are linked under [`docs/starter-issues/`](docs/starter-issues/). Their public issues are contribution invitations, not evidence of external demand or adoption.

@@ -2,6 +2,12 @@
 
 Reading Evidence Agent is currently a small deterministic baseline. Contributions should preserve that property: a reviewer should be able to reproduce a change from a clean checkout without private data, hosted models, API keys, or hidden prompts.
 
+## Choose a contribution
+
+No code is required to [share a first-use result](docs/feedback.md), report a confusing instruction, or submit a permitted minimal failure example. English and Chinese are welcome.
+
+For code, start with the [three scoped starter specifications](docs/starter-issues/README.md). Open an issue naming the spec and check existing discussions before starting, so work is not duplicated. These are proposals, not assigned tasks or evidence of outside demand. Larger changes should first explain the observed problem and smallest useful validation.
+
 ## Start from a clean checkout
 
 The package supports Python 3.10+. CI exercises the minimum supported version (3.10) and the current project lane (3.14).
@@ -14,7 +20,7 @@ python3 -m venv .venv
 ```
 
 The project has no runtime dependencies. Package installation may still need access to the build backend declared in `pyproject.toml`.
-CI deliberately runs from the source tree with `PYTHONPATH=src`, so CI itself does not install third-party test/runtime packages. If package installation is unavailable, contributors can run the same checks with `PYTHONPATH=src python ...`.
+CI runs unit/regression checks from the source tree with `PYTHONPATH=src`, and separately installs the package in a fresh environment for an installed-CLI check. That install may download build dependencies. If installation is unavailable, source checks can run with `PYTHONPATH=src python3 ...`; this does not verify packaging.
 
 Run the unit suite:
 

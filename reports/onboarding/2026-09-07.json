@@ -1,0 +1,441 @@
+{
+  "verified_on": "2026-09-07",
+  "source_commit": "0464cf1a4e958ae40e52a3efecce6d53a6b7c66b",
+  "scope": "Maintainer-agent verification of tracked source in an isolated temporary copy. Documentation-only candidate; not an external-user trial.",
+  "environment": {
+    "platform": "macOS",
+    "python": "3.14.3",
+    "execution": "fresh venv Python with PYTHONPATH pointing to isolated tracked src"
+  },
+  "installation": {
+    "status": "BLOCKED_ENVIRONMENT",
+    "attempt": "python -m pip install <isolated-checkout>",
+    "reason": "Build dependency setuptools>=68 could not be downloaded; configured proxy returned 403 Forbidden. Editable README install and new remote clone were not verified."
+  },
+  "samples": [
+    {
+      "command": "reading-evidence ask \"Should I treat a failed experiment as wasted time?\" --json",
+      "observation": "Three displayed relation classes; support points to heading at line 1.",
+      "answer": {
+        "status": "OK",
+        "question": "Should I treat a failed experiment as wasted time?",
+        "abstained": false,
+        "abstention_reason": null,
+        "evidence": [
+          {
+            "note_id": "failed-experiment-waste",
+            "title": "When a failed experiment is wasted",
+            "excerpt": "# When a failed experiment is wasted A failed experiment can waste time when it repeats a known test, records no result, and changes no future decision. Failure alone is not the waste; running an experiment that cannot…",
+            "relation": "SUPPORT",
+            "confidence": 0.95,
+            "citation": "failed-experiment-waste.md#L1",
+            "reason": "Overlapping claim with matching explicit polarity"
+          },
+          {
+            "note_id": "failed-experiment-learning",
+            "title": "Failure can buy information",
+            "excerpt": "# Failure can buy information A failed experiment is not wasted time when it eliminates a plausible option, exposes a faulty assumption, or improves the next test. The useful output is reduced uncertainty, not a positiv…",
+            "relation": "COUNTER_EVIDENCE",
+            "confidence": 0.95,
+            "citation": "failed-experiment-learning.md#L3",
+            "reason": "Overlapping claim with opposite explicit polarity"
+          },
+          {
+            "note_id": "experiment-preregistration",
+            "title": "Pre-register the learning condition",
+            "excerpt": "# Pre-register the learning condition Before an experiment, write down the expected result, the decision it will inform, and what outcome would change your mind. This makes later interpretation less vulnerable to hindsi…",
+            "relation": "RELATED",
+            "confidence": 0.49,
+            "citation": "experiment-preregistration.md#L3",
+            "reason": "Shares a topic but not enough of the claim"
+          }
+        ],
+        "trace": {
+          "schema_version": 2,
+          "corpus_sha256": "6fb0a94d9b0cbc10e5c3bb48785c1bed4074709e6c09b9d6e98e91b39c53307f",
+          "config": {
+            "top_k_per_query": 8,
+            "rrf_k": 60,
+            "max_per_relation": 1,
+            "abstention_confidence_threshold": 0.6,
+            "relation_classifier": "lexical-polarity-v0.1"
+          },
+          "rewritten_queries": {
+            "original": "Should I treat a failed experiment as wasted time?",
+            "core": "fail experiment waste time",
+            "support": "fail experiment waste time reason evidence benefit supports true",
+            "counter": "fail experiment waste time counterexample risk limit exception false"
+          },
+          "candidates_retrieved": 11,
+          "candidates_deduplicated": 5,
+          "candidates": [
+            {
+              "note_id": "failed-experiment-waste",
+              "rrf_score": 0.049180327869,
+              "best_lexical_score": 8.196338,
+              "matched_queries": [
+                {
+                  "query_index": 0,
+                  "query": "Should I treat a failed experiment as wasted time?",
+                  "rank": 1,
+                  "score": 8.196338
+                },
+                {
+                  "query_index": 1,
+                  "query": "fail experiment waste time reason evidence benefit supports true",
+                  "rank": 1,
+                  "score": 8.196338
+                },
+                {
+                  "query_index": 2,
+                  "query": "fail experiment waste time counterexample risk limit exception false",
+                  "rank": 1,
+                  "score": 8.196338
+                }
+              ]
+            },
+            {
+              "note_id": "failed-experiment-learning",
+              "rrf_score": 0.048387096774,
+              "best_lexical_score": 6.142334,
+              "matched_queries": [
+                {
+                  "query_index": 0,
+                  "query": "Should I treat a failed experiment as wasted time?",
+                  "rank": 2,
+                  "score": 6.142334
+                },
+                {
+                  "query_index": 1,
+                  "query": "fail experiment waste time reason evidence benefit supports true",
+                  "rank": 2,
+                  "score": 6.142334
+                },
+                {
+                  "query_index": 2,
+                  "query": "fail experiment waste time counterexample risk limit exception false",
+                  "rank": 2,
+                  "score": 6.142334
+                }
+              ]
+            },
+            {
+              "note_id": "experiment-preregistration",
+              "rrf_score": 0.047123015873,
+              "best_lexical_score": 1.034558,
+              "matched_queries": [
+                {
+                  "query_index": 0,
+                  "query": "Should I treat a failed experiment as wasted time?",
+                  "rank": 3,
+                  "score": 1.034558
+                },
+                {
+                  "query_index": 1,
+                  "query": "fail experiment waste time reason evidence benefit supports true",
+                  "rank": 4,
+                  "score": 1.034558
+                },
+                {
+                  "query_index": 2,
+                  "query": "fail experiment waste time counterexample risk limit exception false",
+                  "rank": 4,
+                  "score": 1.034558
+                }
+              ]
+            },
+            {
+              "note_id": "reading-speed-limit",
+              "rrf_score": 0.015873015873,
+              "best_lexical_score": 2.00042,
+              "matched_queries": [
+                {
+                  "query_index": 1,
+                  "query": "fail experiment waste time reason evidence benefit supports true",
+                  "rank": 3,
+                  "score": 2.00042
+                }
+              ]
+            },
+            {
+              "note_id": "more-notes-do-not-guarantee",
+              "rrf_score": 0.015873015873,
+              "best_lexical_score": 1.810314,
+              "matched_queries": [
+                {
+                  "query_index": 2,
+                  "query": "fail experiment waste time counterexample risk limit exception false",
+                  "rank": 3,
+                  "score": 1.810314
+                }
+              ]
+            }
+          ],
+          "candidate_decisions": [
+            {
+              "note_id": "failed-experiment-waste",
+              "relation": "SUPPORT",
+              "confidence": 0.95,
+              "reason": "Overlapping claim with matching explicit polarity",
+              "citation": "failed-experiment-waste.md#L1",
+              "selected": true,
+              "drop_reason": null
+            },
+            {
+              "note_id": "failed-experiment-learning",
+              "relation": "COUNTER_EVIDENCE",
+              "confidence": 0.95,
+              "reason": "Overlapping claim with opposite explicit polarity",
+              "citation": "failed-experiment-learning.md#L3",
+              "selected": true,
+              "drop_reason": null
+            },
+            {
+              "note_id": "experiment-preregistration",
+              "relation": "RELATED",
+              "confidence": 0.49,
+              "reason": "Shares a topic but not enough of the claim",
+              "citation": "experiment-preregistration.md#L3",
+              "selected": true,
+              "drop_reason": null
+            },
+            {
+              "note_id": "reading-speed-limit",
+              "relation": "IRRELEVANT",
+              "confidence": 0.1,
+              "reason": "No meaningful claim-level token overlap",
+              "citation": null,
+              "selected": false,
+              "drop_reason": "irrelevant"
+            },
+            {
+              "note_id": "more-notes-do-not-guarantee",
+              "relation": "IRRELEVANT",
+              "confidence": 0.1,
+              "reason": "No meaningful claim-level token overlap",
+              "citation": null,
+              "selected": false,
+              "drop_reason": "irrelevant"
+            }
+          ],
+          "relation_decisions": [
+            {
+              "note_id": "failed-experiment-waste",
+              "relation": "SUPPORT",
+              "confidence": 0.95,
+              "reason": "Overlapping claim with matching explicit polarity"
+            },
+            {
+              "note_id": "failed-experiment-learning",
+              "relation": "COUNTER_EVIDENCE",
+              "confidence": 0.95,
+              "reason": "Overlapping claim with opposite explicit polarity"
+            },
+            {
+              "note_id": "experiment-preregistration",
+              "relation": "RELATED",
+              "confidence": 0.49,
+              "reason": "Shares a topic but not enough of the claim"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "command": "reading-evidence ask \"Should an office chair be replaced every two years?\" --json",
+      "observation": "ABSTAINED with no evidence.",
+      "answer": {
+        "status": "ABSTAINED",
+        "question": "Should an office chair be replaced every two years?",
+        "abstained": true,
+        "abstention_reason": "No sufficiently confident supporting or counter-evidence was retrieved",
+        "evidence": [],
+        "trace": {
+          "schema_version": 2,
+          "corpus_sha256": "6fb0a94d9b0cbc10e5c3bb48785c1bed4074709e6c09b9d6e98e91b39c53307f",
+          "config": {
+            "top_k_per_query": 8,
+            "rrf_k": 60,
+            "max_per_relation": 1,
+            "abstention_confidence_threshold": 0.6,
+            "relation_classifier": "lexical-polarity-v0.1"
+          },
+          "rewritten_queries": {
+            "original": "Should an office chair be replaced every two years?",
+            "core": "office chair replaced every two years",
+            "support": "office chair replaced every two years reason evidence benefit supports true",
+            "counter": "office chair replaced every two years counterexample risk limit exception false"
+          },
+          "candidates_retrieved": 2,
+          "candidates_deduplicated": 2,
+          "candidates": [
+            {
+              "note_id": "reading-speed-limit",
+              "rrf_score": 0.016393442623,
+              "best_lexical_score": 2.00042,
+              "matched_queries": [
+                {
+                  "query_index": 1,
+                  "query": "office chair replaced every two years reason evidence benefit supports true",
+                  "rank": 1,
+                  "score": 2.00042
+                }
+              ]
+            },
+            {
+              "note_id": "more-notes-do-not-guarantee",
+              "rrf_score": 0.016393442623,
+              "best_lexical_score": 1.810314,
+              "matched_queries": [
+                {
+                  "query_index": 2,
+                  "query": "office chair replaced every two years counterexample risk limit exception false",
+                  "rank": 1,
+                  "score": 1.810314
+                }
+              ]
+            }
+          ],
+          "candidate_decisions": [
+            {
+              "note_id": "reading-speed-limit",
+              "relation": "IRRELEVANT",
+              "confidence": 0.1,
+              "reason": "No meaningful claim-level token overlap",
+              "citation": null,
+              "selected": false,
+              "drop_reason": "irrelevant"
+            },
+            {
+              "note_id": "more-notes-do-not-guarantee",
+              "relation": "IRRELEVANT",
+              "confidence": 0.1,
+              "reason": "No meaningful claim-level token overlap",
+              "citation": null,
+              "selected": false,
+              "drop_reason": "irrelevant"
+            }
+          ],
+          "relation_decisions": []
+        }
+      }
+    },
+    {
+      "command": "reading-evidence ask \"Teams should persist with an idea despite repeated weak demand.\" --index .reading-evidence/c04.json --json",
+      "observation": "Known failure reproduced: pivot predicted SUPPORT; frozen Gold expects COUNTER_EVIDENCE.",
+      "answer": {
+        "status": "OK",
+        "question": "Teams should persist with an idea despite repeated weak demand.",
+        "abstained": false,
+        "abstention_reason": null,
+        "evidence": [
+          {
+            "note_id": "pivot",
+            "title": "Preserving runway",
+            "excerpt": "# Preserving runway Teams that changed direction after repeated weak demand preserved enough runway to test a different customer problem.",
+            "relation": "SUPPORT",
+            "confidence": 0.736,
+            "citation": "pivot.md#L3",
+            "reason": "Overlapping claim with matching explicit polarity"
+          }
+        ],
+        "trace": {
+          "schema_version": 2,
+          "corpus_sha256": "add64c09b3568a8c5bdb34dc78c2ab14106905e04a599aab5a9294a01ade0df2",
+          "config": {
+            "top_k_per_query": 8,
+            "rrf_k": 60,
+            "max_per_relation": 1,
+            "abstention_confidence_threshold": 0.6,
+            "relation_classifier": "lexical-polarity-v0.1"
+          },
+          "rewritten_queries": {
+            "original": "Teams should persist with an idea despite repeated weak demand.",
+            "core": "teams persist idea despite repeated weak demand",
+            "support": "teams persist idea despite repeated weak demand reason evidence benefit supports true",
+            "counter": "teams persist idea despite repeated weak demand counterexample risk limit exception false"
+          },
+          "candidates_retrieved": 3,
+          "candidates_deduplicated": 1,
+          "candidates": [
+            {
+              "note_id": "pivot",
+              "rrf_score": 0.049180327869,
+              "best_lexical_score": 1.150728,
+              "matched_queries": [
+                {
+                  "query_index": 0,
+                  "query": "Teams should persist with an idea despite repeated weak demand.",
+                  "rank": 1,
+                  "score": 1.150728
+                },
+                {
+                  "query_index": 1,
+                  "query": "teams persist idea despite repeated weak demand reason evidence benefit supports true",
+                  "rank": 1,
+                  "score": 1.150728
+                },
+                {
+                  "query_index": 2,
+                  "query": "teams persist idea despite repeated weak demand counterexample risk limit exception false",
+                  "rank": 1,
+                  "score": 1.150728
+                }
+              ]
+            }
+          ],
+          "candidate_decisions": [
+            {
+              "note_id": "pivot",
+              "relation": "SUPPORT",
+              "confidence": 0.736,
+              "reason": "Overlapping claim with matching explicit polarity",
+              "citation": "pivot.md#L3",
+              "selected": true,
+              "drop_reason": null
+            }
+          ],
+          "relation_decisions": [
+            {
+              "note_id": "pivot",
+              "relation": "SUPPORT",
+              "confidence": 0.736,
+              "reason": "Overlapping claim with matching explicit polarity"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "pipeline_tutorial": {
+    "case_count": 4,
+    "relation_f1": 0.75,
+    "exact_case_rate": 0.5,
+    "presentation_exact_case_rate": 1.0
+  },
+  "candidate_tutorial": {
+    "case_count": 4,
+    "relation_accuracy": 1.0,
+    "citation_integrity": 1.0,
+    "gold_evidence_match_rate": 0.6667
+  },
+  "model_request_count": 0,
+  "frozen_adversarial": {
+    "status": "Existing artifact inspected; full runner not rerun in this documentation phase.",
+    "path": "reports/release-review/adversarial-results.json",
+    "sha256": "d50983a9018653a0c3a9f813b447433acdd01cfc38c655241009e158c8706142",
+    "exact_cases": 8,
+    "case_count": 20,
+    "relation_f1": 0.45
+  },
+  "external_use": "UNVERIFIED",
+  "lee_acceptance": "PENDING",
+  "publication": "NOT_PERFORMED",
+  "documentation_checks": {
+    "relative_links_resolved": 73,
+    "markdown_fences": "PASS",
+    "issue_template_metadata": "PASS",
+    "exact_readme_source_fallback": "PASS",
+    "github_template_rendering": "NOT_VERIFIED"
+  }
+}

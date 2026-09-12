@@ -1,0 +1,238 @@
+{
+  "verified_on": "2026-09-12",
+  "status": "PASS_LOCAL_RELEASE_CHECKS",
+  "scope": "Allowlisted local candidate; offline synthetic regression only; not external-user acceptance or remote CI.",
+  "environment": {
+    "platform": "Darwin",
+    "python": "3.14.3"
+  },
+  "installation": {
+    "readme_editable_install": "PASS in fresh venv using default build isolation",
+    "wheel_install": "PASS in separate fresh venv, --no-index",
+    "outside_source_directory": "PASS; PYTHONPATH unset; import resolves to site-packages",
+    "network_note": "Initial sandbox download blocked; public build dependencies installed with approved network access."
+  },
+  "unit_tests": {
+    "passed": 57,
+    "command": ".venv/bin/python -m unittest discover -s tests -v"
+  },
+  "samples": {
+    "three_relations": "PASS",
+    "chair_abstention": "PASS",
+    "known_c04_wrong_support": "REPRODUCED",
+    "display": {
+      "default": 1,
+      "expanded": 3,
+      "retrieval_unchanged": true,
+      "status": "ABSTAINED",
+      "hidden_hint": "PASS"
+    }
+  },
+  "public_eval": {
+    "case_count": 4,
+    "relation_f1": 0.75,
+    "exact_case_rate": 0.5,
+    "presentation_exact_case_rate": 1.0,
+    "citation_integrity": 1.0
+  },
+  "judge_eval": {
+    "case_count": 4,
+    "relation_accuracy": 1.0,
+    "citation_integrity": 1.0,
+    "gold_evidence_match_rate": 0.6667
+  },
+  "frozen_regression": {
+    "runs": 2,
+    "hash_seeds": [
+      1,
+      2
+    ],
+    "byte_identical_to_committed_result": true,
+    "sha256": "d50983a9018653a0c3a9f813b447433acdd01cfc38c655241009e158c8706142"
+  },
+  "model_requests": 0,
+  "wheel": {
+    "name": "reading_evidence_agent-0.1.0-py3-none-any.whl",
+    "sha256": "33337f5656dc2751d8b3c1417f9776c365e2cdb95938bbd65dbf3c9a20bbf0b4",
+    "members_checked": 31
+  },
+  "commands": [
+    [
+      "ingest",
+      "$CANDIDATE/demo/corpus",
+      "--index",
+      "$OUTPUT/public-index.json"
+    ],
+    [
+      "ask",
+      "Should I treat a failed experiment as wasted time?",
+      "--index",
+      "$OUTPUT/public-index.json",
+      "--json"
+    ],
+    [
+      "ask",
+      "Should an office chair be replaced every two years?",
+      "--index",
+      "$OUTPUT/public-index.json",
+      "--json"
+    ],
+    [
+      "ingest",
+      "$CANDIDATE/reports/release-review/adversarial/c04-implicit-counter",
+      "--index",
+      "$OUTPUT/c04-index.json"
+    ],
+    [
+      "ask",
+      "Teams should persist with an idea despite repeated weak demand.",
+      "--index",
+      "$OUTPUT/c04-index.json",
+      "--json"
+    ],
+    [
+      "ingest",
+      "$CANDIDATE/demo/display/corpus",
+      "--index",
+      "$OUTPUT/display-index.json"
+    ],
+    [
+      "ask",
+      "Should garden volunteers always grow tomatoes during summer?",
+      "--index",
+      "$OUTPUT/display-index.json",
+      "--json"
+    ],
+    [
+      "ask",
+      "Should garden volunteers always grow tomatoes during summer?",
+      "--index",
+      "$OUTPUT/display-index.json",
+      "--json",
+      "--max-per-relation",
+      "3"
+    ],
+    [
+      "ask",
+      "Should garden volunteers always grow tomatoes during summer?",
+      "--index",
+      "$OUTPUT/display-index.json"
+    ],
+    [
+      "ask",
+      "Should garden volunteers always grow tomatoes during summer?",
+      "--index",
+      "$OUTPUT/display-index.json",
+      "--max-per-relation",
+      "3"
+    ],
+    [
+      "eval",
+      "--index",
+      "$OUTPUT/public-index.json",
+      "--questions",
+      "$CANDIDATE/demo/questions.json",
+      "--dataset",
+      "$CANDIDATE/demo/gold.json",
+      "--output",
+      "$OUTPUT/public-results.json"
+    ],
+    [
+      "judge-eval",
+      "--judge",
+      "lexical",
+      "--dataset",
+      "$CANDIDATE/demo/judge-cases.json",
+      "--output",
+      "$OUTPUT/judge-results.json"
+    ]
+  ],
+  "unverified": [
+    "Remote CI on this candidate",
+    "Fresh remote clone containing this candidate",
+    "Windows execution",
+    "Python 3.10 local execution",
+    "GitHub template rendering",
+    "Independent user usefulness"
+  ],
+  "publication": "NOT_PUBLISHED",
+  "tested_inputs_sha256": {
+    "demo/corpus/experiment-preregistration.md": "e8091c63cc0989ebeb85183b0f05c378c5c5cc44c0e57194c950a889cff1566e",
+    "demo/corpus/failed-experiment-learning.md": "f21da5365f87fb467d54b230ac92e3f2d22ecd9f6f00158b9eebe1fd13403807",
+    "demo/corpus/failed-experiment-waste.md": "d4f902ee3570c6b89789eed60b553c8b03299bbc0de3ecc908a87c014dc50687",
+    "demo/corpus/more-notes-do-not-guarantee.md": "10c670a11052660850fc26b4c3b477f64346670c23836f9a609113dcc45e054e",
+    "demo/corpus/more-notes-help.md": "04d92767382b78b775ba6697e283fefe34ebfb851eeb8847f2bb4b1f8e2d703c",
+    "demo/corpus/note-tagging.md": "1ce336d851c92faca282d0029070d28801bcbb8441ec5af6c6df6f41ee991988",
+    "demo/corpus/reading-speed-benefit.md": "e15706f1c00b7855aa730075f28a7a5b7e9c33638cf92c3d6128601208e21188",
+    "demo/corpus/reading-speed-limit.md": "b604755caa4d6d9cf070ff36ac3fbc2197286ea37e8fc42ee8fc02239736fe51",
+    "demo/corpus/review-questions.md": "32c09ac09815dd7282924c1c6507c0f9ed3d81545cfbccac4c4b9b35f406ad38",
+    "demo/display/corpus/storage.md": "e999585e8e2797bbc7f822ac53dfc1bedb95f63da33d81976bd549063635dde6",
+    "demo/display/corpus/tools.md": "430a4d84db74f3b7261b9c2e43c07f3e465bd7c0f166da981ddd3236693c40d5",
+    "demo/display/corpus/watering.md": "7f2611403397eb5b2833ffdab958a364d8aefb54ba35d117acb895165689b102",
+    "demo/gold.json": "6df3ca6eeccbc696729998907da1d9fbd9d609538e13006357cca0becd648eeb",
+    "demo/judge-cases.json": "e0defe13c88adf95cadb18b1364c5321152a6cb9c1f57cceefa0e5f3c7063bfe",
+    "demo/questions.json": "366542de559187c5c91288bd0991af875e0b8bc4dfbfdebd428118ea9273616e",
+    "pyproject.toml": "72f3fd7c0c8cd1158351a3843164db3439ec7a599264f457b82da5e7175120e4",
+    "reports/release-review/adversarial-freeze.json": "e32924b740816889c838472581ed0736bfe7fccc06bfa881609905c10208ddd0",
+    "reports/release-review/adversarial-gold.json": "fa85979f9b9c84ddc365a0a2983fefbce814753d8c592770616dc2fea0c55c6f",
+    "reports/release-review/adversarial-results.json": "d50983a9018653a0c3a9f813b447433acdd01cfc38c655241009e158c8706142",
+    "reports/release-review/adversarial/c01-mixed/mixed.md": "aa39ea2af64bd8fe253e64cc112c56608ec8d83e874d841fe8393e5928d2a5bb",
+    "reports/release-review/adversarial/c02-qualified/persistence.md": "4533157fcdd4850c1c437cb092a2b1f3724a611443dd18f086138fac6b90f317",
+    "reports/release-review/adversarial/c03-negation-scope/practice.md": "0c4eb1dcfe99716c735eb812a12ad61ce84acf7cdd2712de3166bb400e987987",
+    "reports/release-review/adversarial/c04-implicit-counter/pivot.md": "8441e2809328a95444e1be5be04e228b198cdc6335c6b3d7cc765e35749e0414",
+    "reports/release-review/adversarial/c05-related/temperature.md": "278c9a72155d8b057cf1ced4120db0dabd3f1b63ac1e996662aac5021d8a934f",
+    "reports/release-review/adversarial/c06-overlap-trap/glossary.md": "3766a321062332d25dc0070b75668f040467e95254679aa2c1cea1b9a6fbbd68",
+    "reports/release-review/adversarial/c07-low-overlap-support/negative-results.md": "7c4a22fef378085dfbd012a3560f1845e2f25bc3050a50396f197891d36d94b8",
+    "reports/release-review/adversarial/c08-low-overlap-counter/archive.md": "20fbb66f65fef2ead720983d1b146cbf605f3436da5284a8c8bd8358390e3d97",
+    "reports/release-review/adversarial/c09-multiple-claims/speed.md": "1ff8b49771a226b29dd045aecd9c1884eb6b785aa08f67aa7ac0de1f68557bac",
+    "reports/release-review/adversarial/c10-absent/lab-notebook.md": "3efd8c1eaedba79db5a18bb127f88a98a81fa17e1490a4f44d9fe2459db67bf5",
+    "reports/release-review/adversarial/c11-citation/preregistration.md": "a0501073345607718b62c2bc1c6f4cfb52401cd67fb7ff7ac3ac02f089214cbf",
+    "reports/release-review/adversarial/c12-negation-elsewhere/spacing.md": "e0c67c7274be062aaaf9e1c33bbcee5835413577feea75934887b59ca621c998",
+    "reports/release-review/adversarial/c13-mixed-claims/more-notes.md": "eb49ae3ed25104cb8fc0e38dafd8c01ff63bff3055e548f0bc33e8a9a2fb3d00",
+    "reports/release-review/adversarial/c14-double-negation/double-negation.md": "478d4b77be8a5a3bf7f5872ea0d3f573d9e4525921d99c1b1fde00f20142e7c8",
+    "reports/release-review/adversarial/c15-conditional/reversible.md": "440f38269976cb10c78b9c7abe3084218e95a04f710bc6011dfbed4f5cbd3290",
+    "reports/release-review/adversarial/c16-irony/irony.md": "ecb37aceed51d13fdaafe740833064cb1ffed4883c5fcecaaef478f35c77d40d",
+    "reports/release-review/adversarial/c17-quoted-negation/quoted.md": "221bd388ddfcda4def84889879c58f7e09d2757fb38ecd50e82ab86b6362ff1e",
+    "reports/release-review/adversarial/c18-three-way/counter.md": "9b2acd23adb315f59ee12c66278851bc6ebbe0a0490233338bcb33604b00cfce",
+    "reports/release-review/adversarial/c18-three-way/related.md": "e7f514f3a0826d9954bba764ee5cd9d137392ea0d1b48be0814de92d0b97e226",
+    "reports/release-review/adversarial/c18-three-way/support.md": "d793f34dffb318fe78d769eabee4e14bcfa8d5fa5b9108d31ff78eb296f68054",
+    "reports/release-review/adversarial/c19-topic-trap/fiction.md": "59991b10be38e041f265cb8bf5fcb39f6025d25c3af02569d8eb7d3c84243849",
+    "reports/release-review/adversarial/c20-citation-line/claim.md": "5d80f027beea7aec51757859041b268ffc87b73cbfa55b45e1d2c2077398e8dd",
+    "reports/release-review/public-release-candidate-review.md": "7b919a944d0cf4acf86403816043552df994f369fc1802df8b21d4970ea8a84b",
+    "reports/release-review/run-adversarial-review.py": "86cbbba28193992b751d56364f190429c6984bd286bfa6f5d5606e53896b6ce7",
+    "src/reading_evidence/__init__.py": "b7b7f188b86712da268faf9ecd647741cfa79e405a6c3cb9a444163cdc91db45",
+    "src/reading_evidence/abstention/__init__.py": "005bc1b6dc4ff94fa7d13f049cb7cb8cdce01eca6965453da7d7813b8c70ea7b",
+    "src/reading_evidence/abstention/policy.py": "f355ee10b30c2aa278b280946c93710457ea4f9b6419da7288acd81940bf971f",
+    "src/reading_evidence/agent.py": "d03043d211b41737c6894077b2b6a5e1e6aee596251ab1f8455a420cc337673d",
+    "src/reading_evidence/citation/__init__.py": "9a4d228399ccfaa515fa346fe4bd4c03d7c334bf4a88c555c272b2b8ff6a75b4",
+    "src/reading_evidence/citation/format.py": "00ed74ad77b59c67555cbb61e43b80b7cee2a9fd073cfeffe54cdfc8f05fc2aa",
+    "src/reading_evidence/cli.py": "7b7707048c4f2cedafd17939d7ffdf5823aa565acf762108faff49f6f2d397dd",
+    "src/reading_evidence/evaluation.py": "0026da26349b313910d71f017c38605fcbc90b9501ee1976473de706a23e51b6",
+    "src/reading_evidence/ingest/__init__.py": "64970bf5e89e2012b0149c82f7961c676b93bf3965fe2425a127ff65caa88854",
+    "src/reading_evidence/ingest/store.py": "e434ce05bec40d6f97ca6ab76f38ef117201bb274c1e9020a2103170c82181fb",
+    "src/reading_evidence/judge/__init__.py": "268dc86997703b4fe1e27779dfcf976d77ce8e7eb519bbfe3e03b066bade20a1",
+    "src/reading_evidence/judge/base.py": "b7797baf27ed6c9d8f368044781aebd83fb22cbb71fae03cb3b6024b6e9c386e",
+    "src/reading_evidence/judge/deepseek.py": "2ec0aba81dede5ff9945d9142b1e0f23056edfde38613cee199f3db7388539f6",
+    "src/reading_evidence/judge/lexical.py": "d11edb8c97964451af9bb4ec156bd3983985cf42c90b961d33f14ff300e4feb0",
+    "src/reading_evidence/judge_evaluation.py": "d782b1e25ea0497c78fde354fc66d0ab78d3bcb0faffc1e04c71a6f8c030095a",
+    "src/reading_evidence/models.py": "68dd1d6f87be3ef310f7b24fef066b757129156e85091c4d6b8fa95c87183ba5",
+    "src/reading_evidence/query/__init__.py": "4b558b3d87d8337980846c3061328dbd27184d82cdee5ba7e18ce78d3f03d5d1",
+    "src/reading_evidence/query/decompose.py": "9328ea3a3dab62e1b9c890bb4aa58701b8e7d7fea3a5ed99327ecd6fe66947d2",
+    "src/reading_evidence/relation/__init__.py": "17017546363448b96e6407f1719bcc58f6be0df55891ab2437a3210dc84d20a1",
+    "src/reading_evidence/relation/classifier.py": "1c18166a8d01aa553bb1b3f3124bd6fa060d5ccacf0e75daa2381e80463b1b16",
+    "src/reading_evidence/retrieval/__init__.py": "5b4125b197f4045b5c8f21ff7535e0f73352f589c943e6bc4d58ed37ab83f781",
+    "src/reading_evidence/retrieval/lexical.py": "86daebc176dbe89b11feb2bcd02a06877b4ddf9e203ac9c255ae5d183a9e7838",
+    "src/reading_evidence/text.py": "ad58d7fcedaa5978d559d897afb2c0cdcfba65f89ca39664556a9daf5ea9d23f",
+    "src/reading_evidence/trace/__init__.py": "a15015b7fc1f181243cca7d531b1e0362bc76f1c3b7fb04d0939b29e205014ee",
+    "src/reading_evidence/trace/schema.py": "a9abbfda3bdeffa00a4d4447063d0e472ab108b21031d81eac0dae803d80922c",
+    "tests/test_cli_display.py": "31f2c3c10fc0b18546e34b3ecbbce054f5e394f389f0129c1a2980fbb6fc8764",
+    "tests/test_cli_judge.py": "5f84050385ed318007815b6a594569cd3ee6f375e35162603bf47ee5cc79634e",
+    "tests/test_correctness_contracts.py": "faa0dd021bb42280246bdce32c2ab46d0a8b16bd663c8142c88f285efa0d9dd0",
+    "tests/test_judge_evaluation.py": "ccabf86b651a754410cfe21d3fd9610dca40d5baebd779a9f436f907145d5a35",
+    "tests/test_judges.py": "cf66f49c1af430ef1d07bae1773a57a3e0b4750500494c1b3925acbe04fa8321",
+    "tests/test_public_v0.py": "96287ab3dfb99ad87575e130397f2b47d7c1ccb342125c1e034785055a1f13f1"
+  },
+  "test_scope_exclusion": "Pre-existing untracked benchmarks/ and tests/test_benchmark_contract.py are not in the candidate and were not run.",
+  "base_commit": "0464cf1a4e958ae40e52a3efecce6d53a6b7c66b",
+  "source_state": "Uncommitted allowlisted candidate on base commit; fingerprints identify tested inputs."
+}

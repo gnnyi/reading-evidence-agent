@@ -1,6 +1,6 @@
-# Five-minute offline walkthrough
+# Three-sample offline walkthrough
 
-Install the base package using the [README](../README.md). All commands below use public synthetic material and the default lexical judge. No model API, credentials, or optional dependencies are needed.
+Install the base package using the [README](../README.md). If build dependencies cannot be downloaded, use the README source fallback: replace `.venv/bin/reading-evidence` below with `PYTHONPATH=src python3 -m reading_evidence.cli`. The optional unit-test command becomes `PYTHONPATH=src python3 -m unittest discover -s tests -v`. This does not validate packaging. All commands below use public synthetic material and the default lexical judge. No model API, credentials, or optional dependencies are needed.
 
 ## 1. Inspect evidence and abstention
 
@@ -35,7 +35,25 @@ These four pairs reuse Q01 and Q04 from the public demo. They demonstrate the ca
 
 C04 retrieves `pivot` but classifies it as `SUPPORT`; the frozen label is `COUNTER_EVIDENCE`. The passage describes the benefit of changing direction after weak demand. The lexical baseline misses that implication. This is a judgment failure after retrieval, so adding a vector database alone would not resolve this case.
 
-## 4. Read the two evaluation levels correctly
+## Inspect more evidence from the same retrieval
+
+The default display keeps one item per relation. If the text output reports hidden evidence, increase the display limit to compare more passages:
+
+```bash
+.venv/bin/reading-evidence ask "Should I treat a failed experiment as wasted time?" --max-per-relation 3
+```
+
+This also works with `--json`. The limit changes only which already-classified items are shown; it does not retrieve missing material, improve relation accuracy, or change abstention. In particular, several `RELATED` passages may be useful to read even when the answer abstains because directional evidence is insufficient.
+
+The [synthetic display case study](case-study-display.md) reproduces that one-to-three change with three short public notes, including the unchanged abstention result.
+
+## Stop and review
+
+After the three examples, explain in your own words what the tool returned, why the chair question abstained, and why C04 was wrong. If that is unclear, [report the confusing step](feedback.md). These are public synthetic samples; maintainer or agent completion is not an external-user trial.
+
+To test usefulness, try just one real question and 3–5 short notes using the [feedback guide](feedback.md). The evaluation commands below are optional for contributors.
+
+## Optional: read the two evaluation levels correctly
 
 ```bash
 .venv/bin/reading-evidence eval --questions demo/questions.json --dataset demo/gold.json

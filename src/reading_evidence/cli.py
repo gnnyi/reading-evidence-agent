@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from reading_evidence.agent import ask
+from reading_evidence.agent import DEFAULT_MAX_PER_RELATION, ask
 from reading_evidence.evaluation import run_eval
 from reading_evidence.ingest import ingest_corpus
 from reading_evidence.judge import DeepSeekJudge, JudgeError, LexicalJudge, RelationJudge
@@ -15,6 +15,16 @@ from reading_evidence.models import Relation
 
 DEFAULT_INDEX = Path(".reading-evidence/index.json")
 JUDGE_CHOICES = ("lexical", "deepseek")
+
+
+def _positive_integer(value: str) -> int:
+    try:
+        number = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("must be a positive integer") from None
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return number
 
 
 def _add_judge_arguments(parser: argparse.ArgumentParser) -> None:
@@ -58,6 +68,12 @@ def _print_answer(answer) -> None:
     print(f"  - candidates retrieved: {trace['candidates_retrieved']}")
     print(f"  - candidates deduplicated: {trace['candidates_deduplicated']}")
     print(f"  - relation decisions: {len(trace['relation_decisions'])}")
+    hidden = sum(
+        decision.get("drop_reason") == "max_per_relation"
+        for decision in trace.get("candidate_decisions", [])
+    )
+    if hidden:
+        print(f"  - additional evidence hidden: {hidden}; increase --max-per-relation to review it")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -72,6 +88,13 @@ def build_parser() -> argparse.ArgumentParser:
     ask_parser.add_argument("question")
     ask_parser.add_argument("--index", type=Path, default=DEFAULT_INDEX)
     ask_parser.add_argument("--json", action="store_true", dest="as_json")
+    ask_parser.add_argument(
+        "--max-per-relation",
+        type=_positive_integer,
+        default=DEFAULT_MAX_PER_RELATION,
+        metavar="N",
+        help="Show up to N items per relation (default: %(default)s); does not change retrieval or abstention",
+    )
     _add_judge_arguments(ask_parser)
 
     evaluate = subparsers.add_parser("eval", help="Evaluate against an explicit public/private dataset path")
@@ -102,7 +125,10 @@ def main(argv: list[str] | None = None) -> int:
                 args.judge,
                 confirm_public_data=args.confirm_public_data,
             )
-            answer = ask(args.question, args.index, judge=judge)
+            answer = ask(
+                args.question, args.index,
+                max_per_relation=args.max_per_relation, judge=judge,
+            )
             if args.as_json:
                 print(json.dumps(answer.to_dict(), indent=2, ensure_ascii=False))
             else:

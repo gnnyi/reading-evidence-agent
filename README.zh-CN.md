@@ -2,188 +2,99 @@
 
 # Reading Evidence Agent
 
-你的笔记可以找回相似内容。但它能找出挑战你当前判断的证据吗？
+检查笔记中的材料是在**支持一个观点、挑战它，还是仅仅相关**，并查看原文行级引用与判断过程。
 
-Reading Evidence Agent 关注的是另一类检索问题：
+这是面向证据检索与评测实验的小型离线命令行基线。它使用 BM25 + RRF 检索和确定性的关系规则，无需 API key 或第三方运行依赖。虽然名称中有 Agent，目前没有回答生成或自主智能体循环。
 
-> 面对一个当前问题或观点，阅读语料库能否找出支持它的证据、挑战它的反证、仅仅相关的材料，或者明确判断其中没有可用证据？
+**当前限制：**复杂表达下的关系判断不可靠，公开对抗回归集仅 **8/20 完全正确，F1 为 0.45**。适合用来检查和改进检索，每个结论仍需人工复核。[查看证据与限制 →](docs/evidence.md)
 
-这是一个可离线复现的证据检索工程项目：BM25 + RRF 检索、可替换的关系判断器、原文行级引用、拒答、决策追踪，以及分开的流程评测与候选级评测。默认判断器使用确定性规则。仓库保留了实验性模型适配器，目前只有模拟测试，没有真实模型运行结论；尚无回答生成或动态 Agent Loop。
+## 什么时候值得试
 
-## 不止是相似度检索
+- **用短笔记核对一个观点：**例如“失败的实验是否就是浪费时间？”并排阅读支持、反对和相关背景材料。
+- **排查检索实验：**查看原文是没被检索到、被分错关系，还是在展示时被裁掉。
+- **贡献可复现的失败：**把错误关系或不合适的引用整理成小型公开样例，再考虑修改判断器。
 
-| 普通检索 | Reading Evidence 的问题框架 |
-|---|---|
-| 问题 → 相似度搜索 → Top-K 相关片段 | 问题或观点 → 查询变体 → BM25 + RRF → 关系判断 → `SUPPORT` / `COUNTER_EVIDENCE` / `RELATED` / `ABSTAIN` → citation + trace |
+自动可靠地综合研究结论、处理大型个人知识库，仍是未验证的场景。请先运行公开英文样例；支持中文检索分词，不代表中文语义判断已验证。
 
-关系判断是这个产品要解决、也要评测的核心问题。V0.1 使用透明的词法与极性规则实现这一步，不能视为可靠的语义分类器。
+## 跑通第一个例子
 
-## 直接看效果
-
-完成下方“快速开始”中的公开 Demo 语料导入后，运行：
+需要 Git 与 Python 3.10+。以下命令适用于 macOS/Linux 终端。安装可能下载构建依赖，默认运行过程在本地完成。
 
 ```bash
+git clone https://github.com/gnnyi/reading-evidence-agent.git
+cd reading-evidence-agent
+python3 -m venv .venv
+.venv/bin/python -m pip install -e .
+.venv/bin/reading-evidence ingest demo/corpus
 .venv/bin/reading-evidence ask "Should I treat a failed experiment as wasted time?"
 ```
 
-以下是当前 CLI 的真实输出节选：
+Windows PowerShell 用 `py -3 -m venv .venv` 创建环境，再将命令中的可执行路径换成 `.venv\Scripts\python.exe` 和 `.venv\Scripts\reading-evidence.exe`。本候选版本尚未实测 Windows 路径。
+
+预期输出节选；完整输出还包含摘录、规则分数、来源和判断追踪：
 
 ```text
 SUPPORT
   [failed-experiment-waste] When a failed experiment is wasted
   Citation: failed-experiment-waste.md#L1
-  Confidence: 0.950 — Overlapping claim with matching explicit polarity
-
 COUNTER_EVIDENCE
   [failed-experiment-learning] Failure can buy information
   Citation: failed-experiment-learning.md#L3
-  Confidence: 0.950 — Overlapping claim with opposite explicit polarity
-
 RELATED
   [experiment-preregistration] Pre-register the learning condition
   Citation: experiment-preregistration.md#L3
-  Confidence: 0.490 — Shares a topic but not enough of the claim
-
 NO_EVIDENCE / ABSTAIN: NO
-
-Trace:
-  - rewritten queries: {"original": "Should I treat a failed experiment as wasted time?", ...}
-  - candidates retrieved: 11
-  - candidates deduplicated: 5
-  - relation decisions: 3
 ```
 
-完整输出还包括来源摘录和去重后的来源列表。
+请打开引用行阅读原文。上面的支持引用选中了标题；地址有效，不代表选到了最合适的证据。
 
-## 快速开始
+需要比较多条材料时，可在提问命令后加 `--max-per-relation 3`。默认每类展示一条；提高上限只显示更多已有证据，不改变检索结果或拒答判断。
 
-环境要求：Python 3.10+。基础安装没有第三方运行依赖，不需要外部 API key；以下命令安装完成后均在本地运行。
+**下一步：**按[三个样本的演示](docs/walkthrough.md)查看一次成功、一次拒答和一次已知错误。安装遇到问题时，[报告失败步骤](https://github.com/gnnyi/reading-evidence-agent/issues/new?template=bug_report.md)即可；首次运行失败也是有价值的反馈。
+
+想核验一个具体工程改动，可看[展示上限如何隐藏已检索证据](docs/case-study-display.md)：包含改动前后的复现命令，以及这次改动无法解决的错误。
+
+<details>
+<summary>安装时无法下载构建依赖</summary>
+
+在克隆后的仓库中，只用 Python 也能直接运行源码：
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -e .
-
-.venv/bin/reading-evidence ingest demo/corpus
-.venv/bin/reading-evidence ask "Should I treat a failed experiment as wasted time?"
+PYTHONPATH=src python3 -m reading_evidence.cli ingest demo/corpus
+PYTHONPATH=src python3 -m reading_evidence.cli ask "Should I treat a failed experiment as wasted time?"
 ```
 
-运行公开 Eval：
+后续命令可将 `.venv/bin/reading-evidence` 替换成 `PYTHONPATH=src python3 -m reading_evidence.cli`。这只能验证源码运行，不代表安装验证通过。[继续演示](docs/walkthrough.md)
+
+</details>
+
+## 核对技术证据
+
+导入示例语料后运行：
 
 ```bash
-.venv/bin/reading-evidence eval \
-  --questions demo/questions.json \
-  --dataset demo/gold.json
+.venv/bin/reading-evidence eval --questions demo/questions.json --dataset demo/gold.json
+.venv/bin/reading-evidence judge-eval --dataset demo/judge-cases.json --judge lexical
 ```
 
-运行四分类候选演示（固定命题与原文，不经过检索）：
+| 检查 | 当前基线结果 | 能说明什么 |
+|---|---|---|
+| 公开流程样例 | 分类完全正确 2/4；展示完全正确 4/4 | 展示裁剪可能隐藏误报 |
+| 冻结对抗回归集 | 完全正确 8/20；关系 F1 为 0.45 | 复杂关系判断经常失败 |
+| 固定候选教学样例 | 标签正确 4/4；预期证据片段命中 2/3 | 标签正确、引用真实，也可能没有选好证据 |
 
-```bash
-.venv/bin/reading-evidence judge-eval \
-  --dataset demo/judge-cases.json --judge lexical
-```
+三套数据都是已知的合成样例。[完整结果与边界](docs/evidence.md) · [指标定义](docs/eval-methodology.md) · [持续集成检查](https://github.com/gnnyi/reading-evidence-agent/actions)
 
-按[五分钟演示](docs/walkthrough.md)检查一个成功案例、一次拒答和一个已知失败。
+## 试自己的笔记，或不写代码也能贡献
 
-运行测试：
+将 3～5 条短笔记放在**仓库外**，提出一个真实问题，读完结果后记录是否有帮助。[反馈指南](docs/feedback.md)提供本地命令和简短报告格式。请勿把私人笔记、索引或原始追踪结果上传到 Issue。
 
-```bash
-.venv/bin/python -m unittest discover -s tests -v
-```
+- [提交首次使用反馈](https://github.com/gnnyi/reading-evidence-agent/issues/new?template=first_use.md)：失败或“不值得继续用”同样欢迎，支持中英文。
+- [报告可复现的问题](https://github.com/gnnyi/reading-evidence-agent/issues/new?template=bug_report.md)。
+- 选择一个[带验收条件的入门任务](docs/starter-issues/README.md)，或按[贡献指南](CONTRIBUTING.md)提供公开失败样例。
 
-## V0.1 建立了什么
+## 继续了解
 
-已验证的路径使用 `LexicalJudge`（规则判断器），包括：
+[架构](docs/architecture.md) · [设计决策](docs/design-decisions.md) · [隐私边界](docs/privacy.md) · [贡献指南](CONTRIBUTING.md) · [MIT 许可证](LICENSE)
 
-- 使用 `SUPPORT`、`COUNTER_EVIDENCE` 和 `RELATED` 明确标注证据关系；
-- 当定向证据不足时 abstain；
-- 提供相对来源路径、忠实于原始源行号的 citation 和决策 trace；
-- 提供可复现的公开 fixtures 与 Eval 契约。
-
-`RelationJudge` 接口与 `judge-eval` 支持固定候选对照，不必改动检索。可选的 DeepSeek 适配器会检查结构化输出和原文引文；其错误与重试处理目前只用模拟客户端验证。真实 SDK 兼容性、语义效果、抵抗提示注入的能力、耗时和费用均未验证。基础安装和 CI 不启用它，项目尚不能称为完整 RAG 应用或自主 Agent。
-
-## V0.1 如何工作
-
-1. 将 `.md` 和 `.txt` 笔记写入确定性的本地 JSON 索引。
-2. 将一个问题扩展为原始、寻找支持和寻找反证三类查询变体。
-3. 使用 BM25 分别检索，再通过 reciprocal-rank fusion（RRF，倒数排名融合）合并结果。
-4. 根据可检查的 claim overlap（主张重合度）和 polarity（极性）规则判断关系。
-5. 返回 citation；如果缺少置信度足够的定向证据，则 abstain。
-
-这条 pipeline 有意保持简单。失败可以复现、检查和度量，不会被藏在不可见的模型调用后面。详见[架构说明](docs/architecture.md)和[设计决策](docs/design-decisions.md)。
-
-## 为什么 Eval 是产品的一部分
-
-原先的 4-case 展示层 regression 看起来是满分。把 classification Eval 与每类只展示一条结果的 presentation cap 分离之后，同一套 fixture 的 classification exact 只有 2 / 4，但 CLI presentation 仍是 4 / 4。另一套预先冻结的 20-case adversarial benchmark（对抗性基准）继续暴露更难的失败模式。
-
-| 数据集或指标 | 修正后的 V0.1 结果 |
-|---|---:|
-| 4-case classification exact | 2 / 4 — 仅用于 regression |
-| 4-case presentation exact | 4 / 4 |
-| Frozen adversarial exact cases | 8 / 20 |
-| Relation precision | 0.4737 |
-| Relation recall | 0.4286 |
-| Relation F1 | 0.4500 |
-| Relation macro F1 | 0.3621 |
-| False counter rate | 0.5000 |
-| Counter recall | 0.1250 |
-| RELATED contamination | 0.7500 |
-| RELATED recall | 0.2500 |
-| Abstention accuracy | 0.6500 |
-| Abstention balanced accuracy | 0.5000 |
-| Citation span integrity | 1.0000 |
-
-修正后的 Eval 会在 presentation cap 之前评分所有 retrieved 且非 `IRRELEVANT` 的分类结果，因此原本会被 top-one 展示策略隐藏的 false positives 现在会进入指标；`presentation_exact_case_rate` 仍单独保留，作为 UI regression 信号。冻结 benchmark 仍然显示反证召回率低、方向标签误判、RELATED 污染和较差的 balanced abstention。
-
-这些数字不是质量成功声明。项目把 Eval 输入、原始输出和 failure analysis 当作一等工程产物，让下一步技术决策基于已经观察到的失败，而不是基于一个完美的 Demo 分数：
-
-- 冻结的 [adversarial Gold](reports/release-review/adversarial-gold.json)；
-- V0.1 [原始结果](reports/release-review/adversarial-results.json)；
-- 历史[发布审查与失败分析](reports/release-review/public-release-candidate-review.md)；
-- [Eval 方法](docs/eval-methodology.md)。
-
-## 已知限制
-
-- 关系分类仍是词法和启发式规则；implicit counter-evidence（隐含反证）、mixed stance（混合立场）、反讽和复杂否定经常判断失败。
-- 分词支持 ASCII 单词和确定性的汉字重叠双字切分；不提供中文词典分词、同义词匹配或中文语义关系判断。
-- 没有动态二次检索或 Agent Loop。
-- 尚未验证大规模语料上的性能。
-- 真实用户价值、私人阅读数据上的效果尚未验证。
-
-## 使用自己的评测数据
-
-公开项目默认不会发现或读取 private corpus。需要运行本地 benchmark 时，必须显式传入路径：
-
-```bash
-.venv/bin/reading-evidence ingest path/to/corpus --index path/to/local-index.json
-.venv/bin/reading-evidence eval \
-  --index path/to/local-index.json \
-  --questions path/to/questions.json \
-  --dataset path/to/gold.json \
-  --output path/to/untracked-results.json
-```
-
-Private corpus、索引、Gold labels 和输出都必须放在仓库之外。详见[隐私边界](docs/privacy.md)和[Eval 方法](docs/eval-methodology.md)。
-
-## 项目状态
-
-当前 V0.1：
-
-- deterministic lexical/polarity baseline；
-- 可复现的公开 Demo；
-- 冻结的 adversarial benchmark 与 failure analysis；
-- citation、trace 和 abstention 行为；
-- 可替换的判断器契约和离线四分类候选演示；
-- 仅有模拟响应测试的实验性模型适配器。
-
-后续可能验证的方向，不代表承诺：
-
-- semantic relation judgment（语义关系判断）；
-- 根据证据质量决定是否进行动态二次检索；
-- 多语言检索；
-- private real-world benchmark。
-
-Web UI、vector database 基础设施、multi-agent orchestration、用户账号和 cloud SaaS 仍不在当前范围内。
-
-## 参与贡献
-
-请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [relation annotation guide](docs/relation-annotation-guide.md)。当前提交的 20-case adversarial set 只用于 regression；在单独的 blind/holdout Eval 于首次系统运行前完成冻结之前，不应把它用于 semantic-judge model selection。
+下一步取决于真实用户遇到哪些失败，以及这套流程是否有用。外部采用仍未验证，见[反馈流程](docs/feedback.md)与[发布就绪记录](docs/release-readiness.md)。
